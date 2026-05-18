@@ -60,17 +60,22 @@ Set up if not already present:
 ```bash
 # Install tooling
 python -m pip install --upgrade pip
-pip install black ruff isort pre-commit
+pip install black ruff isort pre-commit detect-secrets
 
 # Initialise pre-commit
 pre-commit install
 pre-commit run --all-files
+
+# Generate secrets baseline (commit this file — it tracks known findings)
+detect-secrets scan > .secrets.baseline
 ```
 
 Required config files (templates already in this repo):
 - `pyproject.toml` — Black, Ruff, isort config
-- `.pre-commit-config.yaml` — gitleaks, black, ruff, isort hooks
-- `.github/workflows/ci.yml` — lint + test on push/PR
+- `.pre-commit-config.yaml` — gitleaks, trufflehog, black, ruff, isort, detect-secrets hooks
+- `.github/workflows/ci.yml` — lint + test + secret-scan on push/PR
+- `.gitleaks.toml` — gitleaks config with `.secrets.baseline` allowlist
+- `.secrets.baseline` — detect-secrets known-findings baseline (committed, not ignored)
 
 Add a GitHub issue and roadmap entry for any missing tests.
 

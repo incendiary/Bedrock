@@ -12,7 +12,7 @@ license = { text = "MIT" }
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["black", "ruff", "isort", "pre-commit", "pytest", "pytest-cov"]
+dev = ["black", "ruff", "isort", "pre-commit", "pytest", "pytest-cov", "detect-secrets"]
 
 [tool.black]
 line-length = 88

@@ -52,6 +52,9 @@ jobs:
       - name: Run tests
         run: pytest
 
+      - name: Secret baseline check
+        run: detect-secrets scan --baseline .secrets.baseline
+
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest

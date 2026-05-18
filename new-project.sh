@@ -90,6 +90,8 @@ case "$LANG" in
         echo "  python -m venv .venv && source .venv/bin/activate"
         echo "  pip install -e '.[dev]'"
         echo "  pre-commit install"
+        echo "  # Regenerate secrets baseline after adding project code:"
+        echo "  # detect-secrets scan > .secrets.baseline && git add .secrets.baseline"
         ;;
     csharp)
         echo "  dotnet restore"
