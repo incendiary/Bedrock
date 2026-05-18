@@ -22,10 +22,18 @@ jobs:
           yamllint -d relaxed \
             python-template/.pre-commit-config.yaml \
             python-template/.github/workflows/ci.yml \
+            python-template/.github/dependabot.yml \
             csharp-template/.pre-commit-config.yaml \
             csharp-template/.github/workflows/ci.yml \
+            csharp-template/.github/dependabot.yml \
             cpp-template/.pre-commit-config.yaml \
-            cpp-template/.github/workflows/ci.yml
+            cpp-template/.github/workflows/ci.yml \
+            cpp-template/.github/dependabot.yml
+
+      - name: Secret baseline check
+        run: |
+          pip install --quiet detect-secrets
+          detect-secrets scan --baseline .secrets.baseline
 
   secret-scan:
     name: Secret Scan

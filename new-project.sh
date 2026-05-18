@@ -82,6 +82,29 @@ git push origin main
 echo "==> Setting default branch to main"
 gh repo edit "$GITHUB_USER/$REPO_NAME" --default-branch main
 
+echo "==> Enabling branch protection on main"
+case "$LANG" in
+    python)  REQUIRED_CHECKS='["Secret Scan","Lint","Test"]' ;;
+    csharp)  REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
+    cpp)     REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
+esac
+
+gh api "repos/$GITHUB_USER/$REPO_NAME/branches/main/protection" \
+  --method PUT \
+  --input - <<EOF
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": $REQUIRED_CHECKS
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+EOF
+
 echo ""
 echo "Done. Next steps:"
 echo "  cd $REPO_NAME"
@@ -95,11 +118,11 @@ case "$LANG" in
         ;;
     csharp)
         echo "  dotnet restore"
-        echo "  pip install pre-commit && pre-commit install"
+        echo "  pip install pre-commit detect-secrets && pre-commit install"
         ;;
     cpp)
         echo "  cmake -B build -DCMAKE_BUILD_TYPE=Release"
-        echo "  pip install pre-commit && pre-commit install"
+        echo "  pip install pre-commit detect-secrets && pre-commit install"
         ;;
 esac
 echo ""
