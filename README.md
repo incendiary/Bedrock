@@ -1,6 +1,6 @@
 # StartingPoint
 
-Project templates for Python, C#, and C++ repositories. Each template includes pre-commit hooks (gitleaks, formatters), CI pipelines, and a CLAUDE.md publication-readiness audit prompt.
+Project templates for Python, C#, and C++ repositories. Each template ships with secret scanning (gitleaks + TruffleHog + detect-secrets), formatting enforcement, CI pipelines, Dependabot, and branch protection — configured out of the box by `new-project.sh`.
 
 ---
 
@@ -31,12 +31,15 @@ The script creates a private GitHub repo under your account, seeds it from the r
 
 | File | Purpose |
 |------|---------|
-| `CLAUDE.md` | Publication-readiness audit prompt — paste into Claude to start the review |
-| `.pre-commit-config.yaml` | gitleaks (pattern) + TruffleHog (verified) + language formatter |
-| `.github/workflows/ci.yml` | Lint, build, test, gitleaks + TruffleHog on push/PR |
+| `CLAUDE.md` | Publication-readiness audit prompt — loads automatically in Claude Code |
+| `.pre-commit-config.yaml` | gitleaks · TruffleHog · detect-secrets · language formatter |
+| `.github/workflows/ci.yml` | Build, test, lint, secret scan on push/PR |
+| `.github/dependabot.yml` | Weekly Dependabot updates for packages + Actions |
+| `.gitleaks.toml` | Gitleaks config with `.secrets.baseline` allowlist |
+| `.secrets.baseline` | detect-secrets baseline (committed; regenerate after adding code) |
 | `.gitignore` | Comprehensive ignores for the language |
 | `README.md` | Project README with roadmap table |
-| `pyproject.toml` | Python: Black, Ruff, isort config |
+| `pyproject.toml` | Python: Black, Ruff, isort, detect-secrets config |
 | `.editorconfig` | C#: Microsoft conventions + naming/compiler warnings |
 | `.clang-format` | C++: Google-based style, 100-char columns |
 | `.clang-tidy` | C++: Core Guidelines + modernize checks |
@@ -46,17 +49,17 @@ The script creates a private GitHub repo under your account, seeds it from the r
 
 ## Roadmap table (per project)
 
-Each generated README contains a roadmap you fill in as you go:
+Each generated README contains a roadmap. Items marked ✅ below are **done by default** when `new-project.sh` runs — no manual setup needed.
 
-| # | Status | Description |
-|---|--------|-------------|
-| #1 | ⬜ Todo | Secret scan |
-| #2 | ⬜ Todo | Dependency audit |
-| #3 | ⬜ Todo | Code quality pass |
-| #4 | ⬜ Todo | Tooling |
-| #5 | ⬜ Todo | Tests |
-| #6 | ⬜ Todo | Documentation |
-| #7 | ⬜ Todo | Branch protection |
+| # | Default | Description |
+|---|---------|-------------|
+| #1 | ✅ Done | Secret scan (gitleaks + TruffleHog + detect-secrets, pre-commit + CI) |
+| #2 | ✅ Done | Dependency audit (Dependabot weekly, packages + Actions) |
+| #3 | ⬜ Todo | Code quality pass (manual review — run CLAUDE.md audit) |
+| #4 | ✅ Done | Tooling (pre-commit hooks, CI pipeline, formatters) |
+| #5 | ⬜ Todo | Tests (scaffold present for Python; add tests for your code) |
+| #6 | ⬜ Todo | Documentation (README scaffold present; fill in description + usage) |
+| #7 | ✅ Done | Branch protection (force-push blocked, required CI checks on main) |
 
 Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 
