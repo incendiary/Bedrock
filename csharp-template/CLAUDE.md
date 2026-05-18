@@ -69,16 +69,21 @@ dotnet tool install -g dotnet-format
 # Format check
 dotnet format --verify-no-changes
 
-# Install pre-commit
-pip install pre-commit
+# Install pre-commit and detect-secrets
+pip install pre-commit detect-secrets
 pre-commit install
 pre-commit run --all-files
+
+# Generate secrets baseline (commit this file — it tracks known findings)
+detect-secrets scan > .secrets.baseline
 ```
 
 Required config files (templates already in this repo):
 - `.editorconfig` — Microsoft conventions, naming rules, compiler warnings
-- `.pre-commit-config.yaml` — gitleaks, dotnet format hooks
-- `.github/workflows/ci.yml` — build + test + format check on push/PR
+- `.pre-commit-config.yaml` — gitleaks, trufflehog, dotnet format, detect-secrets hooks
+- `.github/workflows/ci.yml` — build + test + format check + secret baseline on push/PR
+- `.gitleaks.toml` — gitleaks config with `.secrets.baseline` allowlist
+- `.secrets.baseline` — detect-secrets known-findings baseline (committed, not ignored)
 
 Add a GitHub issue and roadmap entry for any missing tests.
 

@@ -34,3 +34,9 @@ repos:
         entry: dotnet format --verify-no-changes
         pass_filenames: false
         types: [c#]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]

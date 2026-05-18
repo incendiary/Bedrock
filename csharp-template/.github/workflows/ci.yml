@@ -30,6 +30,11 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
 
+      - name: Secret baseline check
+        run: |
+          pip install detect-secrets --quiet
+          detect-secrets scan --baseline .secrets.baseline
+
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest

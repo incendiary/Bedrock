@@ -74,18 +74,23 @@ clang-format --dry-run --Werror src/**/*.cpp src/**/*.h
 # Static analysis
 clang-tidy src/**/*.cpp -- -std=c++17
 
-# Install pre-commit
-pip install pre-commit
+# Install pre-commit and detect-secrets
+pip install pre-commit detect-secrets
 pre-commit install
 pre-commit run --all-files
+
+# Generate secrets baseline (commit this file — it tracks known findings)
+detect-secrets scan > .secrets.baseline
 ```
 
 Required config files (templates already in this repo):
 - `.clang-format` — style rules (LLVM base, Google, or Mozilla)
 - `.clang-tidy` — enabled checks
-- `.pre-commit-config.yaml` — gitleaks, clang-format hooks
+- `.pre-commit-config.yaml` — gitleaks, trufflehog, clang-format, detect-secrets hooks
 - `CMakeLists.txt` — build system
-- `.github/workflows/ci.yml` — build + test + format check on push/PR
+- `.github/workflows/ci.yml` — build + test + format check + secret baseline on push/PR
+- `.gitleaks.toml` — gitleaks config with `.secrets.baseline` allowlist
+- `.secrets.baseline` — detect-secrets known-findings baseline (committed, not ignored)
 
 Add a GitHub issue and roadmap entry for any missing tests (Google Test / Catch2 recommended).
 
