@@ -30,7 +30,8 @@ jobs:
             cpp-template/.github/workflows/ci.yml \
             cpp-template/.github/dependabot.yml \
             node-spa-template/.pre-commit-config.yaml \
-            node-spa-template/.github/workflows/ci.yml
+            node-spa-template/.github/workflows/ci.yml \
+            node-spa-template/.github/dependabot.yml
 
       - name: Secret baseline check
         run: |
