@@ -7,14 +7,16 @@ GITHUB_USER="incendiary"
 usage() {
     echo "Usage: $0 <language> <repo-name> [--public]"
     echo ""
-    echo "  language   python | csharp | cpp"
+    echo "  language   python | csharp | cpp | node-spa"
     echo "  repo-name  name for the new GitHub repository"
     echo "  --public   create as public repo (default: private)"
     echo ""
     echo "Examples:"
     echo "  $0 python my-new-tool"
     echo "  $0 csharp SharpLoader"
-    echo "  $0 cpp exploit-helper --public"
+    echo "  $0 cpp exploit-helper --public
+  $0 node-spa HopStock --public
+"
     exit 1
 }
 
@@ -30,6 +32,7 @@ case "$LANG" in
     python)   TEMPLATE_DIR="$SCRIPT_DIR/python-template" ;;
     csharp)   TEMPLATE_DIR="$SCRIPT_DIR/csharp-template" ;;
     cpp)      TEMPLATE_DIR="$SCRIPT_DIR/cpp-template" ;;
+    node-spa) TEMPLATE_DIR="$SCRIPT_DIR/node-spa-template" ;;
     *)        echo "Unknown language: $LANG"; usage ;;
 esac
 
@@ -84,9 +87,10 @@ gh repo edit "$GITHUB_USER/$REPO_NAME" --default-branch main
 
 echo "==> Enabling branch protection on main"
 case "$LANG" in
-    python)  REQUIRED_CHECKS='["Secret Scan","Lint","Test"]' ;;
-    csharp)  REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
-    cpp)     REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
+    python)   REQUIRED_CHECKS='["Secret Scan","Lint","Test"]' ;;
+    csharp)   REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
+    cpp)      REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
+    node-spa) REQUIRED_CHECKS='["secret-scan","lint","build"]' ;;
 esac
 
 gh api "repos/$GITHUB_USER/$REPO_NAME/branches/main/protection" \
@@ -123,6 +127,13 @@ case "$LANG" in
     cpp)
         echo "  cmake -B build -DCMAKE_BUILD_TYPE=Release"
         echo "  pip install pre-commit detect-secrets && pre-commit install"
+        ;;
+    node-spa)
+        echo "  npm install"
+        echo "  pip install pre-commit detect-secrets && pre-commit install"
+        echo "  npm run dev"
+        echo "  # Regenerate secrets baseline after adding project code:"
+        echo "  # detect-secrets scan > .secrets.baseline && git add .secrets.baseline"
         ;;
 esac
 echo ""

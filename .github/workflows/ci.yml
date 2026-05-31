@@ -28,7 +28,9 @@ jobs:
             csharp-template/.github/dependabot.yml \
             cpp-template/.pre-commit-config.yaml \
             cpp-template/.github/workflows/ci.yml \
-            cpp-template/.github/dependabot.yml
+            cpp-template/.github/dependabot.yml \
+            node-spa-template/.pre-commit-config.yaml \
+            node-spa-template/.github/workflows/ci.yml
 
       - name: Secret baseline check
         run: |
