@@ -62,13 +62,13 @@ pre-commit run --all-files
 
 | # | Status | Description |
 |---|--------|-------------|
-| [#1](../../issues/1) | ⬜ Todo | Secret scan — audit working tree and git history |
-| [#2](../../issues/2) | ⬜ Todo | Dependency audit — check for CVEs and outdated packages |
+| [#1](../../issues/1) | ✅ Done | Secret scan — gitleaks + TruffleHog + detect-secrets (pre-commit + CI) |
+| [#2](../../issues/2) | ✅ Done | Dependency audit — Dependabot (Actions, weekly) |
 | [#3](../../issues/3) | ⬜ Todo | Code quality pass — dead code, duplication, memory safety |
-| [#4](../../issues/4) | ⬜ Todo | Tooling — clang-format, clang-tidy, pre-commit, CI pipeline |
+| [#4](../../issues/4) | ✅ Done | Tooling — clang-format, clang-tidy, pre-commit, CI pipeline |
 | [#5](../../issues/5) | ⬜ Todo | Tests — add unit/integration test coverage (Google Test / Catch2) |
-| [#6](../../issues/6) | ⬜ Todo | Documentation — README, build instructions |
-| [#7](../../issues/7) | ⬜ Todo | Branch protection — enable on main, require CI to pass |
+| [#6](../../issues/6) | ⬜ Todo | Documentation — fill in description + usage above |
+| [#7](../../issues/7) | ✅ Done | Branch protection — force-push blocked, required CI checks on main |
 
 Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 

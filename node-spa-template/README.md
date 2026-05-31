@@ -70,7 +70,7 @@ REPO_NAME/
 | 4 | ✅ Done | Tooling (pre-commit hooks, CI pipeline) |
 | 5 | ⬜ Todo | Tests (add unit + integration tests) |
 | 6 | ⬜ Todo | Documentation (fill in description + usage above) |
-| 7 | ⬜ Todo | Branch protection (force-push blocked, required CI checks on main) |
+| 7 | ✅ Done | Branch protection (force-push blocked, required CI checks on main) |
 
 Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 

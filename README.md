@@ -74,6 +74,17 @@ After running `new-project.sh`, open the project in Claude Code. The `CLAUDE.md`
 
 ---
 
+## Releases
+
+| Version | Description |
+|---------|-------------|
+| v0.1.0  | Initial public release — python and C# templates |
+| v0.2.0  | detect-secrets + gitleaks configs across all templates; C++ template |
+| v0.3.0  | node-spa template (Express + Vue 3 + Vite + SQLite) |
+| v1.0.0  | All templates at full parity — tooling, secrets, branch protection |
+
+---
+
 ## Contributing to StartingPoint
 
 ```bash
