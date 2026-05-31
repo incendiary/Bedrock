@@ -1,10 +1,10 @@
 <template>
   <main>
-    <h1>PROJECT_NAME</h1>
-    <p>Vue 3 + Vite frontend is running.</p>
+    <h1>REPO_NAME</h1>
+    <p>TODO: replace this with your application.</p>
   </main>
 </template>
 
 <script setup>
-// TODO: build your app here
+// TODO: add your component logic here
 </script>
