@@ -1,6 +1,6 @@
 # StartingPoint
 
-Project templates for Python, C#, and C++ repositories. Each template ships with secret scanning (gitleaks + TruffleHog + detect-secrets), formatting enforcement, CI pipelines, Dependabot, and branch protection — configured out of the box by `new-project.sh`.
+Project templates for Python, C#, C++, and Node/SPA repositories. Each template ships with secret scanning (gitleaks + TruffleHog + detect-secrets), formatting enforcement, CI pipelines, Dependabot, and branch protection — configured out of the box by `new-project.sh`.
 
 ---
 
@@ -18,9 +18,10 @@ cd StartingPoint
 ### Examples
 
 ```bash
-./new-project.sh python  my-python-tool
-./new-project.sh csharp  SharpLoader
-./new-project.sh cpp     exploit-helper
+./new-project.sh python    my-python-tool
+./new-project.sh csharp    SharpLoader
+./new-project.sh cpp       exploit-helper
+./new-project.sh node-spa  HopStock --public
 ```
 
 The script creates a private GitHub repo under your account, seeds it from the right template, and pushes the initial commit. It then prints the exact next steps for that language.
@@ -44,6 +45,8 @@ The script creates a private GitHub repo under your account, seeds it from the r
 | `.clang-format` | C++: Google-based style, 100-char columns |
 | `.clang-tidy` | C++: Core Guidelines + modernize checks |
 | `CMakeLists.txt` | C++: CMake scaffold with optional test build |
+| `package.json` (workspaces) | Node/SPA: root workspace manifest for server + client |
+| `vite.config.js` | Node/SPA: Vite config proxying `/api` to Express, builds to `server/public/` |
 
 ---
 
@@ -81,8 +84,8 @@ pre-commit install
 ```
 
 **Universality rule:** any security or tooling addition must be applied consistently across:
-- All three template `.pre-commit-config.yaml` files
-- All three template `.github/workflows/ci.yml` files
+- All four template `.pre-commit-config.yaml` files
+- All four template `.github/workflows/ci.yml` files
 - The StartingPoint root `.pre-commit-config.yaml`
 - The StartingPoint root `.github/workflows/ci.yml`
 

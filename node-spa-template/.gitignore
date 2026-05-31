@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build output
+dist/
+server/public/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# SQLite database (local data — not committed)
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded files (local data — not committed)
+uploads/
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Claude Code
+.claude/
