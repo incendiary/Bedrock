@@ -52,21 +52,26 @@ The script creates a private GitHub repo under your account, seeds it from the r
 
 ---
 
-## Roadmap table (per project)
+## What each generated project gets
 
-Each generated README contains a roadmap. Items marked ✅ below are **done by default** when `new-project.sh` runs — no manual setup needed.
+Each generated README contains a seven-item roadmap. Bedrock wires up four of those items automatically — the remaining three are handed to you to complete for your specific project.
 
-| # | Default | Description |
-|---|---------|-------------|
-| #1 | ✅ Done | Secret scan (gitleaks + TruffleHog + detect-secrets, pre-commit + CI) |
-| #2 | ✅ Done | Dependency audit (Dependabot weekly, packages + Actions) |
-| #3 | ⬜ Todo | Code quality pass (manual review — run CLAUDE.md audit) |
-| #4 | ✅ Done | Tooling (pre-commit hooks, CI pipeline, formatters) |
-| #5 | ⬜ Todo | Tests (scaffold present for Python; add tests for your code) |
-| #6 | ⬜ Todo | Documentation (README scaffold present; fill in description + usage) |
-| #7 | ✅ Done | Branch protection (force-push blocked, required CI checks on main) |
+**Configured automatically by `new-project.sh`:**
 
-Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
+| # | Item |
+|---|------|
+| 1 | Secret scan — gitleaks + TruffleHog + detect-secrets (pre-commit + CI) |
+| 2 | Dependency audit — Dependabot (packages + Actions, weekly) |
+| 4 | Tooling — language formatter, pre-commit hooks, CI pipeline |
+| 7 | Branch protection — force-push blocked, required CI checks on main |
+
+**Completed by you after generating:**
+
+| # | Item |
+|---|------|
+| 3 | Code quality pass — run the CLAUDE.md audit on your code |
+| 5 | Tests — scaffold provided; write tests for your implementation |
+| 6 | Documentation — README scaffold provided; fill in description + usage |
 
 ---
 
