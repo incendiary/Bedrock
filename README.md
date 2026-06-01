@@ -1,6 +1,8 @@
-# StartingPoint
+# Bedrock
 
-Project templates for Python, C#, C++, and Node/SPA repositories. Each template ships with secret scanning (gitleaks + TruffleHog + detect-secrets), formatting enforcement, CI pipelines, Dependabot, and branch protection — configured out of the box by `new-project.sh`.
+One command from an empty GitHub repo to a hardened, production-ready project — secret scanning wired in, branch protection configured, CI running, before you write a single line of application code.
+
+Most project templates give you a file layout. Bedrock gives you a security posture. Three-layer secret scanning (pattern matching + verified credential detection + entropy baseline), formatting enforcement, CI pipelines, Dependabot, and branch protection are all configured out of the box by `new-project.sh` — consistently, across Python, C#, C++, and Node/SPA. The same security standard applies regardless of which language you reach for.
 
 ---
 
@@ -8,8 +10,8 @@ Project templates for Python, C#, C++, and Node/SPA repositories. Each template 
 
 ```bash
 # Clone this repo once
-git clone git@github.com:incendiary/StartingPoint.git
-cd StartingPoint
+git clone git@github.com:incendiary/Bedrock.git
+cd Bedrock
 
 # Spin up a new project
 ./new-project.sh <language> <repo-name>
@@ -85,11 +87,11 @@ After running `new-project.sh`, open the project in Claude Code. The `CLAUDE.md`
 
 ---
 
-## Contributing to StartingPoint
+## Contributing to Bedrock
 
 ```bash
-git clone git@github.com:incendiary/StartingPoint.git
-cd StartingPoint
+git clone git@github.com:incendiary/Bedrock.git
+cd Bedrock
 pip install pre-commit
 pre-commit install
 ```
@@ -97,7 +99,7 @@ pre-commit install
 **Universality rule:** any security or tooling addition must be applied consistently across:
 - All four template `.pre-commit-config.yaml` files
 - All four template `.github/workflows/ci.yml` files
-- The StartingPoint root `.pre-commit-config.yaml`
-- The StartingPoint root `.github/workflows/ci.yml`
+- The Bedrock root `.pre-commit-config.yaml`
+- The Bedrock root `.github/workflows/ci.yml`
 
 If you add a tool in one place, add it everywhere before committing.
