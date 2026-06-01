@@ -84,6 +84,7 @@ After running `new-project.sh`, open the project in Claude Code. The `CLAUDE.md`
 | v0.2.0  | detect-secrets + gitleaks configs across all templates; C++ template |
 | v0.3.0  | node-spa template (Express + Vue 3 + Vite + SQLite) |
 | v1.0.0  | All templates at full parity — tooling, secrets, branch protection |
+| v1.0.1  | Renamed to Bedrock |
 
 ---
 
