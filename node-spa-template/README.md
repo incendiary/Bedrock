@@ -78,9 +78,9 @@ Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 
 ## Releases
 
-| Version | Date | Notes |
-|---------|------|-------|
-| v0.1.0 | — | Initial scaffold |
+| Version | Description |
+|---------|-------------|
+| v1.0.0  | Public release — all roadmap items complete |
 
 ---
 
