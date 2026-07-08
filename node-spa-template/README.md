@@ -84,6 +84,6 @@ Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 
 ---
 
-## Licence
+## License
 
-For personal / authorized use only. No warranty. User assumes all responsibility.
+This project is licensed under the [Prosperity Public License 4.0.0](LICENSE). See the LICENSE file for details.

@@ -79,5 +79,11 @@ Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 
 ---
 
+## License
+
+This project is licensed under the [Prosperity Public License 4.0.0](LICENSE). See the LICENSE file for details.
+
+---
+
 > This project was uplifted for public release with the assistance of Claude (Anthropic).
 > Things should work, but some paths may not have been fully re-tested. PRs and fixes welcome.
