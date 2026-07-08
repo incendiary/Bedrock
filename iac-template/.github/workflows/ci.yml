@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+# The gitleaks action reads PR commits via the API, which needs these grants on
+# private repositories. Without them the default token returns HTTP 403.
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   validate:
     name: Validate
