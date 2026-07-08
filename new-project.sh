@@ -146,5 +146,15 @@ case "$LANG" in
         ;;
 esac
 echo ""
+echo "  Optional: Install pre-push validation hook?"
+echo "  This will run checks locally before every push, preventing CI failures."
+read -p "  Install pre-push validation hook? (y/n) " -n 1 -r INSTALL_HOOK
+echo
+if [[ $INSTALL_HOOK =~ ^[Yy]$ ]]; then
+    cd "$REPO_NAME"
+    bash pre-push-validation.sh --install-hook
+    cd - > /dev/null
+fi
+echo ""
 echo "  Then drop your code into src/ and update README.md + CLAUDE.md context fields."
 echo "  Open in Claude Code — CLAUDE.md loads automatically to start the audit."
