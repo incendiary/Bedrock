@@ -1,0 +1,50 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+tfplan
+*.tfplan
+
+# Packer
+packer_cache/
+*.box
+manifest.json
+# Built AMI identifiers must never be committed
+ami-ids.txt
+*.ami
+
+# Ansible
+*.retry
+.vault_pass
+vault-password*
+
+# Credentials and secrets
+*.pem
+*.key
+*.ppk
+*.p12
+*.pfx
+credentials
+aws-credentials*
+.env
+.env.*
+secrets.json
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

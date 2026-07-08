@@ -7,7 +7,7 @@ GITHUB_USER="incendiary"
 usage() {
     echo "Usage: $0 <language> <repo-name> [--public]"
     echo ""
-    echo "  language   python | csharp | cpp | node-spa"
+    echo "  language   python | csharp | cpp | node-spa | iac"
     echo "  repo-name  name for the new GitHub repository"
     echo "  --public   create as public repo (default: private)"
     echo ""
@@ -33,6 +33,7 @@ case "$LANG" in
     csharp)   TEMPLATE_DIR="$SCRIPT_DIR/csharp-template" ;;
     cpp)      TEMPLATE_DIR="$SCRIPT_DIR/cpp-template" ;;
     node-spa) TEMPLATE_DIR="$SCRIPT_DIR/node-spa-template" ;;
+    iac)      TEMPLATE_DIR="$SCRIPT_DIR/iac-template" ;;
     *)        echo "Unknown language: $LANG"; usage ;;
 esac
 
@@ -91,6 +92,7 @@ case "$LANG" in
     csharp)   REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
     cpp)      REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
     node-spa) REQUIRED_CHECKS='["secret-scan","lint","build"]' ;;
+    iac)      REQUIRED_CHECKS='["Secret Scan","Validate"]' ;;
 esac
 
 gh api "repos/$GITHUB_USER/$REPO_NAME/branches/main/protection" \
@@ -133,6 +135,13 @@ case "$LANG" in
         echo "  pip install pre-commit detect-secrets && pre-commit install"
         echo "  npm run dev"
         echo "  # Regenerate secrets baseline after adding project code:"
+        echo "  # detect-secrets scan > .secrets.baseline && git add .secrets.baseline"
+        ;;
+    iac)
+        echo "  terraform init && terraform fmt -check -recursive && terraform validate"
+        echo "  pip install pre-commit detect-secrets checkov && pre-commit install"
+        echo "  cp terraform.tfvars.example terraform.tfvars   # then edit; it is gitignored"
+        echo "  # Regenerate secrets baseline after adding config:"
         echo "  # detect-secrets scan > .secrets.baseline && git add .secrets.baseline"
         ;;
 esac

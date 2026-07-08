@@ -2,7 +2,7 @@
 
 One command from an empty GitHub repo to a hardened, production-ready project — secret scanning wired in, branch protection configured, CI running, before you write a single line of application code.
 
-Most project templates give you a file layout. Bedrock gives you a security posture. Three-layer secret scanning (pattern matching + verified credential detection + entropy baseline), formatting enforcement, CI pipelines, Dependabot, and branch protection are all configured out of the box by `new-project.sh` — consistently, across Python, C#, C++, and Node/SPA. The same security standard applies regardless of which language you reach for.
+Most project templates give you a file layout. Bedrock gives you a security posture. Three-layer secret scanning (pattern matching + verified credential detection + entropy baseline), formatting enforcement, CI pipelines, Dependabot, and branch protection are all configured out of the box by `new-project.sh` — consistently, across Python, C#, C++, Node/SPA, and IaC. The same security standard applies regardless of which language you reach for.
 
 ---
 
@@ -24,6 +24,7 @@ cd Bedrock
 ./new-project.sh csharp    SharpLoader
 ./new-project.sh cpp       exploit-helper
 ./new-project.sh node-spa  HopStock --public
+./new-project.sh iac       my-terraform-range
 ```
 
 The script creates a private GitHub repo under your account, seeds it from the right template, and pushes the initial commit. It then prints the exact next steps for that language.
@@ -49,6 +50,8 @@ The script creates a private GitHub repo under your account, seeds it from the r
 | `CMakeLists.txt` | C++: CMake scaffold with optional test build |
 | `package.json` (workspaces) | Node/SPA: root workspace manifest for server + client |
 | `vite.config.js` | Node/SPA: Vite config proxying `/api` to Express, builds to `server/public/` |
+| `versions.tf` / `main.tf` / `variables.tf` | IaC: Terraform skeleton with version pins and common tags |
+| `terraform.tfvars.example` | IaC: sample variables; real `terraform.tfvars` is gitignored |
 
 ---
 
@@ -103,8 +106,8 @@ pre-commit install
 ```
 
 **Universality rule:** any security or tooling addition must be applied consistently across:
-- All four template `.pre-commit-config.yaml` files
-- All four template `.github/workflows/ci.yml` files
+- All five template `.pre-commit-config.yaml` files
+- All five template `.github/workflows/ci.yml` files
 - The Bedrock root `.pre-commit-config.yaml`
 - The Bedrock root `.github/workflows/ci.yml`
 
