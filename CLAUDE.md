@@ -1,7 +1,7 @@
 # Bedrock
 
 Project templates plus `new-project.sh`, which creates a GitHub repo and seeds it from one of
-four templates (`python-template`, `csharp-template`, `cpp-template`, `node-spa-template`).
+five templates (`python-template`, `csharp-template`, `cpp-template`, `node-spa-template`, `iac-template`).
 Every template ships the same security baseline: gitleaks, TruffleHog and detect-secrets,
 language formatters, CI, Dependabot and branch protection.
 

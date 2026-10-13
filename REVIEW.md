@@ -1,6 +1,6 @@
 # Bedrock holistic review
 
-Reviewed at `182ee06` (v1.0.2 tag exists; README Releases table stops at v1.0.1).
+Reviewed at `182ee06`; `main` then gained `iac-template`, a licence and `pre-push-validation.sh` (see ROADMAP Phase 4b). Findings below apply to all five templates unless noted.
 Scope: 62 tracked files, four templates plus `new-project.sh`. Predictive: what breaks as
 templates multiply (a Terraform template is planned) and as generated projects age.
 Actions are in `ROADMAP.md` (IDs below match).

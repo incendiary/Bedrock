@@ -34,7 +34,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Owner keeps employer-term rules in a private global gitleaks config, not in any repo.
 - [ ] **H-2: Install local-ci hooks.** Human confirms. Effort XS.
   `bash local-ci.sh --sync`, review the toolchain-versus-CI table, then
-  `bash local-ci.sh --install-hook pre-commit` and `--install-hook pre-push`. Run `pre-commit install` first
+  `bash local-ci.sh --install-hook pre-commit` and, once P-1 is decided, `--install-hook pre-push`. Run `pre-commit install` first
   so gitleaks stays live; local-ci chains existing hooks.
 
 ## Phase 1: defects (ship first)
@@ -45,7 +45,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   (replace `PROJECT_NAME` with `demo` first; the package dir is `src`, so add
   `[tool.setuptools] packages = ["src"]` only if the install errors on discovery) exits 0, then `.v/bin/pytest` passes.
 - [ ] **R-2: Make the secret-baseline gate fail on new secrets.** Sonnet. S.
-  Files: root `.github/workflows/ci.yml`; `python|csharp|cpp-template/.github/workflows/ci.yml`;
+  Files: root `.github/workflows/ci.yml`; `python|csharp|cpp|iac-template/.github/workflows/ci.yml`;
   `python-template/tests/test_secrets.py`.
   Problem: `detect-secrets scan --baseline F` rewrites F and exits 0. Replace each CI step body with
   `pip install detect-secrets==1.5.0` then
@@ -77,15 +77,15 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Add `.github/workflows/ci.yml` to the yamllint file list; change `pip install --quiet yamllint` to
   `pip install --quiet yamllint==1.35.1` (check latest with `pip index versions yamllint`; use that exact version).
   Verify: `pip install yamllint==<v> && yamllint -d relaxed .github/workflows/ci.yml` exits 0.
-- [ ] **R-8: Fix the TruffleHog pre-commit hook args.** Haiku. XS. Files: `.pre-commit-config.yaml` and the four
-  `*-template/.pre-commit-config.yaml`. The upstream hook `entry` already is `trufflehog git file://. --since-commit HEAD ...`,
+- [ ] **R-8: Fix the TruffleHog pre-commit hook args.** Haiku. XS. Files: `.pre-commit-config.yaml` and the five
+  `*-template/.pre-commit-config.yaml` (python, csharp, cpp, node-spa, iac). The upstream hook `entry` already is `trufflehog git file://. --since-commit HEAD ...`,
   so our `args: ["git", "file://.", ...]` duplicates the subcommand and the hook dies with "unexpected git" on every commit.
   Change `args` to `["--results=verified,unknown", "--no-update"]` (the entry supplies `--fail`). Do not edit anything else.
   Verify: `pre-commit run trufflehog --all-files` exits 0 on a clean tree (needs `trufflehog` 3.x on PATH; if missing, say so).
 
 ## Phase 2: supply chain
 
-- [ ] **S-1: Pin all Actions to commit SHAs.** Sonnet. M. Files: all 6 workflow files (root 1, templates 4, plus none else).
+- [ ] **S-1: Pin all Actions to commit SHAs.** Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
   For each `uses: owner/repo@tag`, resolve the SHA with
   `gh api repos/OWNER/REPO/commits/TAG --jq .sha` and write `uses: owner/repo@<sha> # TAG`.
   Replace `trufflehog@main` (removed by R-6 at root) with `@v3.95.2`'s SHA. Dependabot already updates Actions.
@@ -94,16 +94,17 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Change `pip install black ruff isort` to `pip install black==25.1.0 ruff==0.11.9 isort==6.0.1`
   (match `python-template/.pre-commit-config.yaml` revs; if those change, change both). Also pin in `pyproject.toml` `dev` extras
   with `==`. Verify: `grep -n "pip install" python-template/.github/workflows/ci.yml` shows only pinned lint tools.
-- [ ] **S-3: Least-privilege token.** Haiku. XS. Files: all 5 `ci.yml`. Add under `on:`:
-  `permissions:\n  contents: read`. Exception: the gitleaks-action step may need `pull-requests: read`; add that at
-  job level on `secret-scan` only. Verify: `yamllint` on each file; first CI run green.
+- [ ] **S-3: Least-privilege token.** Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
+  workflows. Remaining: confirm all five template `ci.yml` and the root `ci.yml` carry the same block (root and any template
+  missing it get it); do not add anything broader. Verify: `grep -L "permissions:" .github/workflows/*.yml */.github/workflows/ci.yml`
+  prints nothing.
 
 ## Phase 3: consistency and tests
 
 - [ ] **C-1: Template conformance check.** Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
-  Python stdlib plus PyYAML only. Assert, for every `*-template/`: `.gitleaks.toml` byte-identical across templates;
+  Python stdlib plus PyYAML only. Assert, for every `*-template/` (five, including `iac-template`): `.gitleaks.toml` byte-identical across templates;
   `.pre-commit-config.yaml` contains gitleaks, trufflehog, detect-secrets, no-commit-to-branch with identical `rev`s;
-  `ci.yml` has a job named `Secret Scan` using the same gitleaks and trufflehog steps; `dependabot.yml` includes `github-actions`;
+  `ci.yml` has a job named `Secret Scan` using the same gitleaks and trufflehog steps; `dependabot.yml` includes `github-actions` (and `terraform` for `iac-template`);
   every check name in `new-project.sh` `REQUIRED_CHECKS` for a language equals a job `name:` in that template's `ci.yml`.
   Exit non-zero listing every violation. Add a root CI step running it. Verify: passes on `main`; temporarily bump one
   `rev` in one template and confirm it fails with a clear message (revert it).
@@ -122,16 +123,42 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 4: new template
 
-- [ ] **N-1: Terraform template.** Sonnet implements; Opus reviews the security controls. L. Needs: C-1, T-2.
-  Files: `terraform-template/` (new: `.gitignore`, `.gitleaks.toml` (copy), `.secrets.baseline`, `.pre-commit-config.yaml`,
-  `.github/workflows/ci.yml`, `.github/dependabot.yml` with `terraform` and `github-actions`, `CLAUDE.md`, `README.md`,
-  `.tflint.hcl`, `versions.tf`, `main.tf`, `variables.tf`, `outputs.tf`), `new-project.sh`, root `README.md`, C-1 and T-1 tests.
-  Rules: copy the secret-scan job and the three secret layers exactly from the Python template. Add `terraform fmt -check`,
-  `terraform validate` (with `init -backend=false`), `tflint`, and `checkov` (or `trivy config`), all pinned to explicit versions.
-  `.gitignore` must exclude `*.tfstate*`, `.terraform/`, `*.tfvars` (keep `*.tfvars.example`). No provider credentials anywhere;
-  `main.tf` is a harmless no-op (a `terraform_data` resource or `null` output). Job names: `Secret Scan`, `Terraform`.
-  Add `terraform)` branches to every `case` in `new-project.sh`. Use the `terraform-checkov-skips` and `terraform-version-compat`
-  skills; any checkov skip needs a one-line justification comment. Verify: C-1 and T-2 pass including the new template.
+- [x] **N-1: Terraform template.** Landed as `iac-template/` (commit `caa7539`, PR 19) with `iac` in `new-project.sh`
+  (required checks `Secret Scan`, `Validate`). Follow-ups are folded into R-2, R-8, S-1, S-2 and C-1 below. Known by design:
+  Checkov runs advisory (`--soft-fail`) because these repos may host deliberately vulnerable infrastructure; do not "fix" that.
+
+## Phase 4b: drift found after the review (new on `main`)
+
+- [ ] **P-1: Decide pre-push-validation versus local-ci.** Human decision, then Sonnet. S.
+  `da63c71` added `pre-push-validation.sh` (about 106 lines) to the root and each of five templates, offered by an interactive
+  `read -p` in `new-project.sh`. local-ci supersedes it and both own `.git/hooks/pre-push`. Options: (a) keep it and drop the
+  local-ci pre-push hook; (b) replace it with a local-ci-style check; (c) remove it. Known bug whichever is chosen:
+  `new-project.sh` runs `bash pre-push-validation.sh --install-hook`, but the script reads `--install-hook` from `$2` (it
+  expects `--dry-run`/`--install-hook` in positions 1 and 2), so the install branch never runs and the checks run instead.
+  Also `read -p` hangs non-interactive runs; guard with `[ -t 0 ]`. Six copies of one script violate the universality rule's
+  spirit; C-1 should assert they are byte-identical. Verify: after the fix, `bash pre-push-validation.sh --install-hook`
+  in a scratch repo creates `.git/hooks/pre-push`.
+- [ ] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** Sonnet. S. Decision made by owner: use the
+  text at https://github.com/incendiary/Chorus/blob/main/LICENSE (PolyForm Noncommercial 1.0.0, unmodified except the
+  `Required Notice:` line). Replaces the Prosperity Public License from `0e3c8af`.
+  Files: `LICENSE` in `python-template`, `csharp-template`, `cpp-template`, `node-spa-template`, `iac-template` (iac has none today);
+  `python-template/pyproject.toml` (`license = { text = "MIT" }` contradicts the file: use `license = { file = "LICENSE" }`);
+  `node-spa-template/package.json` and the two `client`/`server` package.json files (`"license": "SEE LICENSE IN LICENSE"`);
+  `csharp-template/src/PROJECT_NAME.csproj` (`<PackageLicenseFile>` only if packable, otherwise skip); template READMEs (one line).
+  Each `LICENSE` is this header, a blank line, then the Chorus licence body byte-for-byte (everything after its `Required Notice:` line):
+
+      PolyForm Noncommercial License 1.0.0
+
+      Required Notice: Copyright 2026 incendiary (https://github.com/incendiary/PROJECT_NAME)
+
+      Commercial use needs a paid licence: open an issue titled "Commercial licence" at
+      https://github.com/incendiary/PROJECT_NAME/issues. Maintainers of open-source projects can ask for a free licence the same way.
+
+  Drop the email address (public file) and keep the literal `PROJECT_NAME` so `new-project.sh` substitutes it. The header is
+  plain text outside the PolyForm terms; do not edit the licence body. No separate commercial file (owner decision) Do not edit any other licence wording.
+  Decide separately whether Bedrock's own root has a `LICENSE` (it has none today); report it, do not add one.
+  Verify: `diff <(sed 1,3d python-template/LICENSE) <(sed 1,3d csharp-template/LICENSE)` empty for all five; `grep -ril prosperity .`
+  returns nothing; `grep -rn "MIT" python-template/pyproject.toml` returns nothing; C-1 asserts the five LICENSE files match.
 
 ## Phase 5: documentation and release
 
