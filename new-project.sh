@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GITHUB_USER="incendiary"
+GITHUB_USER="${BEDROCK_GITHUB_USER:-incendiary}"
 
 usage() {
     echo "Usage: $0 <language> <repo-name> [--public]"
@@ -14,27 +14,32 @@ usage() {
     echo "Examples:"
     echo "  $0 python my-new-tool"
     echo "  $0 csharp SharpLoader"
-    echo "  $0 cpp exploit-helper --public
-  $0 node-spa HopStock --public
-"
+    echo "  $0 cpp exploit-helper --public"
+    echo "  $0 node-spa HopStock --public"
+    echo "  $0 iac my-infra"
     exit 1
 }
 
 [[ $# -lt 2 ]] && usage
 
-LANG="$1"
+TEMPLATE_LANG="$1"
 REPO_NAME="$2"
 VISIBILITY="--private"
 
 [[ "${3:-}" == "--public" ]] && VISIBILITY="--public"
 
-case "$LANG" in
+if [[ ! "$REPO_NAME" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    echo "Invalid repo-name: '$REPO_NAME' (allowed: letters, digits, '.', '_', '-')" >&2
+    exit 1
+fi
+
+case "$TEMPLATE_LANG" in
     python)   TEMPLATE_DIR="$SCRIPT_DIR/python-template" ;;
     csharp)   TEMPLATE_DIR="$SCRIPT_DIR/csharp-template" ;;
     cpp)      TEMPLATE_DIR="$SCRIPT_DIR/cpp-template" ;;
     node-spa) TEMPLATE_DIR="$SCRIPT_DIR/node-spa-template" ;;
     iac)      TEMPLATE_DIR="$SCRIPT_DIR/iac-template" ;;
-    *)        echo "Unknown language: $LANG"; usage ;;
+    *)        echo "Unknown language: $TEMPLATE_LANG"; usage ;;
 esac
 
 # Cross-platform in-place sed (BSD on macOS, GNU on Linux)
@@ -65,14 +70,14 @@ substitute_placeholders() {
 }
 
 echo "==> Creating GitHub repo: $GITHUB_USER/$REPO_NAME ($VISIBILITY)"
-gh repo create "$GITHUB_USER/$REPO_NAME" $VISIBILITY
+gh repo create "$GITHUB_USER/$REPO_NAME" "$VISIBILITY"
 
 echo "==> Cloning into $(pwd)/$REPO_NAME"
 gh repo clone "$GITHUB_USER/$REPO_NAME" "$REPO_NAME"
 
 cd "$REPO_NAME"
 
-echo "==> Seeding from $LANG template"
+echo "==> Seeding from $TEMPLATE_LANG template"
 cp -r "$TEMPLATE_DIR/." .
 
 echo "==> Substituting PROJECT_NAME → $REPO_NAME"
@@ -80,14 +85,14 @@ substitute_placeholders "$REPO_NAME"
 
 echo "==> Setting up git"
 git add -A
-git commit -m "chore: initialise from $LANG template"
+git commit -m "chore: initialise from $TEMPLATE_LANG template"
 git push origin main
 
 echo "==> Setting default branch to main"
 gh repo edit "$GITHUB_USER/$REPO_NAME" --default-branch main
 
 echo "==> Enabling branch protection on main"
-case "$LANG" in
+case "$TEMPLATE_LANG" in
     python)   REQUIRED_CHECKS='["Secret Scan","Lint","Test"]' ;;
     csharp)   REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
     cpp)      REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
@@ -114,7 +119,7 @@ EOF
 echo ""
 echo "Done. Next steps:"
 echo "  cd $REPO_NAME"
-case "$LANG" in
+case "$TEMPLATE_LANG" in
     python)
         echo "  python -m venv .venv && source .venv/bin/activate"
         echo "  pip install -e '.[dev]'"
