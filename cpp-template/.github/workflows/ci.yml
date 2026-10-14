@@ -39,9 +39,9 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
       - name: Secret baseline check
-        run: |
-          pip install detect-secrets --quiet
-          detect-secrets scan --baseline .secrets.baseline
+        run: |  # pragma: allowlist secret
+          pip install detect-secrets==1.5.0
+          git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
 
   secret-scan:
     name: Secret Scan

@@ -37,9 +37,9 @@ jobs:
             iac-template/.github/dependabot.yml
 
       - name: Secret baseline check
-        run: |
-          pip install --quiet detect-secrets
-          detect-secrets scan --baseline .secrets.baseline
+        run: |  # pragma: allowlist secret
+          pip install detect-secrets==1.5.0
+          git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
 
   secret-scan:
     name: Secret Scan

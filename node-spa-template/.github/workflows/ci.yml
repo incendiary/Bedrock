@@ -24,6 +24,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Secret baseline check
+        run: |  # pragma: allowlist secret
+          pip install detect-secrets==1.5.0
+          git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
 
   build:
     name: Build
