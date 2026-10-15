@@ -24,8 +24,9 @@ jobs:
 
       - name: Validate YAML files
         run: |
-          pip install --quiet yamllint
+          pip install --quiet yamllint==1.38.0
           yamllint -d relaxed \
+            .github/workflows/ci.yml \
             python-template/.pre-commit-config.yaml \
             python-template/.github/workflows/ci.yml \
             python-template/.github/dependabot.yml \
