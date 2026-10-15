@@ -151,10 +151,13 @@ case "$TEMPLATE_LANG" in
         ;;
 esac
 echo ""
-echo "  Optional: Install pre-push validation hook?"
-echo "  This will run checks locally before every push, preventing CI failures."
-read -p "  Install pre-push validation hook? (y/n) " -n 1 -r INSTALL_HOOK
-echo
+INSTALL_HOOK=n
+if [ -t 0 ]; then
+    echo "  Optional: Install pre-push validation hook?"
+    echo "  This will run checks locally before every push, preventing CI failures."
+    read -p "  Install pre-push validation hook? (y/n) " -n 1 -r INSTALL_HOOK
+    echo
+fi
 if [[ $INSTALL_HOOK =~ ^[Yy]$ ]]; then
     cd "$REPO_NAME"
     bash pre-push-validation.sh --install-hook

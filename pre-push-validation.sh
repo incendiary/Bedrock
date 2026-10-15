@@ -1,106 +1,50 @@
 #!/bin/bash
-# Pre-push validation: runs checks before allowing push to remote
-# Exit code: 0 = all checks pass, 1 = first failure stops execution
-
+# Pre-push gate: runs the commands CI runs (read from .github/workflows/ci.yml) before you push.
+# Read-only: skips installs, sudo, secrets and GitHub-only steps; a missing local tool is a warning, a failing step blocks.
+# Full-featured version (version parity, auto-fix, --sync): the ci-local skill, https://github.com/incendiary/grimoire
+# Usage: bash pre-push-validation.sh [--install-hook]
 set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-DRY_RUN=${1:-}
-INSTALL_HOOK=${2:-}
-
-# Color output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-log_pass() { echo -e "${GREEN}✓${NC} $1"; }
-log_fail() { echo -e "${RED}✗${NC} $1"; exit 1; }
-log_info() { echo -e "${YELLOW}→${NC} $1"; }
-
-# Detect project type
-detect_tech_stack() {
-  local has_node=0 has_python=0 has_go=0 has_rust=0 has_csharp=0 has_bash=0
-  
-  [[ -f "$REPO_ROOT/package.json" ]] && has_node=1
-  [[ -f "$REPO_ROOT/pyproject.toml" || -f "$REPO_ROOT/requirements.txt" ]] && has_python=1
-  [[ -f "$REPO_ROOT/go.mod" ]] && has_go=1
-  [[ -f "$REPO_ROOT/Cargo.toml" ]] && has_rust=1
-  [[ -f "$REPO_ROOT/*.csproj" ]] && has_csharp=1
-  [[ -f "$REPO_ROOT/new-project.sh" ]] && has_bash=1
-  
-  echo "$has_node $has_python $has_go $has_rust $has_csharp $has_bash"
-}
-
-# Run checks
-run_checks() {
-  local failed=0
-  
-  # Shell: shellcheck
-  if command -v shellcheck &>/dev/null && [[ -f "$REPO_ROOT/new-project.sh" ]]; then
-    log_info "Running shellcheck on shell scripts..."
-    if shellcheck "$REPO_ROOT/new-project.sh" 2>&1; then
-      log_pass "shellcheck"
-    else
-      log_fail "shellcheck failed"
-    fi
-  fi
-  
-  # Python: black, ruff
-  if [[ -f "$REPO_ROOT/pyproject.toml" ]]; then
-    log_info "Running Python checks..."
-    if command -v black &>/dev/null; then
-      if black --check . 2>&1 | tail -1; then
-        log_pass "black"
-      else
-        log_fail "black formatting issues found"
-      fi
-    fi
-    if command -v ruff &>/dev/null; then
-      if ruff check . 2>&1 | tail -1; then
-        log_pass "ruff"
-      else
-        log_fail "ruff linting issues found"
-      fi
-    fi
-  fi
-  
-  # Node: eslint, prettier
-  if [[ -f "$REPO_ROOT/package.json" ]]; then
-    log_info "Running Node checks..."
-    if command -v npm &>/dev/null; then
-      if npm run lint 2>&1 | tail -3; then
-        log_pass "npm lint"
-      else
-        log_fail "npm lint failed"
-      fi
-    fi
-  fi
-  
-  log_pass "All checks passed"
-}
-
-# Install git hook
-install_hook() {
-  local hook_path="$REPO_ROOT/.git/hooks/pre-push"
-  mkdir -p "$REPO_ROOT/.git/hooks"
-  cat > "$hook_path" << 'HOOK'
+if [ "${1:-}" = "--install-hook" ]; then
+  hook="$(git rev-parse --git-path hooks/pre-push)"
+  mkdir -p "$(dirname "$hook")"
+  if [ -f "$hook" ] && ! grep -q "pre-push-validation" "$hook"; then mv "$hook" "$hook.prev"; fi
+  cat > "$hook" <<'HOOK'
 #!/bin/bash
-# Auto-generated pre-push hook
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-bash "$REPO_ROOT/pre-push-validation.sh"
+# pre-push-validation: runs any previous hook first, then the CI-derived checks
+prev="$(dirname "$0")/pre-push.prev"
+if [ -x "$prev" ]; then "$prev" "$@" || exit $?; fi
+exec bash "$(git rev-parse --show-toplevel)/pre-push-validation.sh"
 HOOK
-  chmod +x "$hook_path"
-  log_pass "Pre-push hook installed"
-}
-
-# Main
-if [[ "$DRY_RUN" == "--dry-run" ]]; then
-  log_info "Dry run mode - showing what would be checked..."
-  log_info "Tech stack detection..."
-  detect_tech_stack
-elif [[ "$INSTALL_HOOK" == "--install-hook" ]]; then
-  install_hook
-else
-  run_checks
+  chmod +x "$hook"
+  echo "pre-push hook installed: $hook (bypass once with git push --no-verify)"
+  exit 0
 fi
+
+python3 - <<'PY'
+import re, subprocess, sys
+try:
+    import yaml
+except ImportError:
+    sys.exit("PyYAML missing: pip install pyyaml (inside your venv). Push not gated.")
+skip_step = re.compile(r"\$\{\{|gh |sudo |apt-get")
+skip_line = re.compile(r"^\s*((python3? -m )?pip install\b|npm (ci|install)\b|dotnet restore\b|sudo\b|apt-get\b)")
+ran = 0
+for job in yaml.safe_load(open(".github/workflows/ci.yml"))["jobs"].values():
+    for step in job.get("steps", []):
+        run = step.get("run")
+        if not run or skip_step.search(run):
+            continue
+        script = "\n".join(l for l in run.splitlines() if not skip_line.match(l))
+        if not script.strip():
+            continue
+        print("==> %s / %s" % (job.get("name", "job"), step.get("name", script.splitlines()[0][:60])))
+        rc = subprocess.run(["bash", "-e", "-c", script]).returncode
+        if rc == 127:
+            print("    skipped: tool not installed locally")
+        elif rc:
+            sys.exit("FAILED (exit %d): fix before pushing, or git push --no-verify" % rc)
+        ran += 1
+print("%d CI step(s) passed locally. CI-only steps (secret scanners, installs) are not covered." % ran)
+PY
