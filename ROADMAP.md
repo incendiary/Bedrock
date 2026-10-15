@@ -32,19 +32,19 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Residual: hidden `refs/pull/19/head` and `refs/pull/20/head` still reach the old commits. Open a GitHub Support request to purge
   cached views and run garbage collection (owner action), or record as accepted risk. Other clones and forks keep the old history.
   Owner keeps employer-term rules in a private global gitleaks config, not in any repo.
-- [ ] **H-2: Install local-ci hooks.** Human confirms. Effort XS.
+- [x] **H-2: Install local-ci hooks.** Done 2026-10-13 (pre-commit and pre-push installed in the owner's checkout; reinstalled after the skill rename). Effort XS.
   `bash local-ci.sh --sync`, review the toolchain-versus-CI table, then
   `bash local-ci.sh --install-hook pre-commit` and, once P-1 is decided, `--install-hook pre-push`. Run `pre-commit install` first
   so gitleaks stays live; local-ci chains existing hooks.
 
 ## Phase 1: defects (ship first)
 
-- [ ] **R-1: Fix Python build backend.** Haiku. XS. Files: `python-template/pyproject.toml`.
+- [x] **R-1: Fix Python build backend.** (merged, PR #29). Haiku. XS. Files: `python-template/pyproject.toml`.
   Change line 3 `build-backend = "setuptools.backends.legacy:build"` to `build-backend = "setuptools.build_meta"`.
   Verify: in a scratch dir `python -m venv .v && .v/bin/pip install -e ".[dev]"` from a copy of the template
   (replace `PROJECT_NAME` with `demo` first; the package dir is `src`, so add
   `[tool.setuptools] packages = ["src"]` only if the install errors on discovery) exits 0, then `.v/bin/pytest` passes.
-- [ ] **R-2: Make the secret-baseline gate fail on new secrets.** Sonnet. S.
+- [x] **R-2: Make the secret-baseline gate fail on new secrets.** (merged, PR #26). Sonnet. S.
   Files: root `.github/workflows/ci.yml`; `python|csharp|cpp|iac-template/.github/workflows/ci.yml`;
   `python-template/tests/test_secrets.py`.
   Problem: `detect-secrets scan --baseline F` rewrites F and exits 0. Replace each CI step body with
@@ -55,53 +55,53 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   add `tests/test_main.py` asserting `main()` runs (pytest exits 5 with no tests, so one test must remain).
   Verify (negative test, in a scratch copy): add a file containing the AWS documentation example access key (look it up in the AWS docs; do not paste it into any tracked file), `git add` it,
   run the command; expect non-zero. Remove it; expect zero. Paste both exit codes.
-- [ ] **R-3: Commit a lockfile for node-spa.** Sonnet. S. Files: `node-spa-template/package-lock.json` (new).
+- [x] **R-3: Commit a lockfile for node-spa.** (merged, PR #24). Sonnet. S. Files: `node-spa-template/package-lock.json` (new).
   In a scratch copy run `npm install --package-lock-only` at `node-spa-template/` (workspaces: one root lockfile).
   Copy the lockfile back. Verify: `npm ci && npm run lint && npm run build` succeeds in a clean copy;
   `npm audit --omit=dev` output pasted. Do not edit `package.json` versions here.
-- [ ] **R-4: Replace deprecated multer.** Sonnet. XS. Needs: R-3. Files: `node-spa-template/server/package.json`, lockfile.
+- [x] **R-4: Replace deprecated multer.** (merged, PR #30). Sonnet. XS. Needs: R-3. Files: `node-spa-template/server/package.json`, lockfile.
   Owner question first: if SQLite and uploads are not wanted by default, delete `multer` and `better-sqlite3`
   instead (ponytail finding 2). Default if no answer: bump to `multer` 2.x only; keep `better-sqlite3`.
   Verify: `npm ci && npm audit --omit=dev` shows no multer advisories; `node server/src/index.js` starts and
   `curl localhost:3000/api/health` returns `{"status":"ok",...}`.
-- [ ] **R-5: Harden `new-project.sh`.** Sonnet. S. Files: `new-project.sh` only.
+- [x] **R-5: Harden `new-project.sh`.** (merged, PR #23). Sonnet. S. Files: `new-project.sh` only.
   (a) rename `LANG` to `TEMPLATE_LANG` everywhere; (b) fix the usage heredoc (lines 17-21: the `cpp` example
   swallows the next lines in one string; make each example its own `echo`); (c) `GITHUB_USER="${BEDROCK_GITHUB_USER:-incendiary}"`;
   (d) reject names not matching `^[A-Za-z0-9._-]+$` before any `gh` call; (e) set `-- ` and quote `$VISIBILITY` correctly.
   Verify: `bash -n new-project.sh && shellcheck new-project.sh`; `./new-project.sh python 'bad/name'` exits 1
   with a message and makes no network call (run with `PATH` stripped of `gh` to prove it); `./new-project.sh` prints clean usage.
-- [ ] **R-6: Remove the duplicate secret-scan workflow.** Haiku. XS. Files: delete `.github/workflows/secret-scan.yml`.
+- [x] **R-6: Remove the duplicate secret-scan workflow.** (merged, PR #28). Haiku. XS. Files: delete `.github/workflows/secret-scan.yml`.
   First confirm `ci.yml` `secret-scan` job exists (it does). Verify: `grep -c trufflehog .github/workflows/*.yml`;
   branch protection requires `Secret Scan`, which `ci.yml` provides. Note in PR that the check name is unchanged.
-- [ ] **R-7: Lint root workflows and pin lint tools.** Haiku. XS. Files: root `.github/workflows/ci.yml`.
+- [ ] **R-7: Lint root workflows and pin lint tools.** (PR #36 open). Haiku. XS. Files: root `.github/workflows/ci.yml`.
   Add `.github/workflows/ci.yml` to the yamllint file list; change `pip install --quiet yamllint` to
   `pip install --quiet yamllint==1.35.1` (check latest with `pip index versions yamllint`; use that exact version).
   Verify: `pip install yamllint==<v> && yamllint -d relaxed .github/workflows/ci.yml` exits 0.
-- [ ] **R-8: Fix the TruffleHog pre-commit hook args.** Haiku. XS. Files: `.pre-commit-config.yaml` and the five
+- [x] **R-8: Fix the TruffleHog pre-commit hook args.** (merged, PR #27). Haiku. XS. Files: `.pre-commit-config.yaml` and the five
   `*-template/.pre-commit-config.yaml` (python, csharp, cpp, node-spa, iac). The upstream hook `entry` already is `trufflehog git file://. --since-commit HEAD ...`,
   so our `args: ["git", "file://.", ...]` duplicates the subcommand and the hook dies with "unexpected git" on every commit.
-  Change `args` to `["--results=verified,unknown", "--no-update"]` (the entry supplies `--fail`). Do not edit anything else.
+  Change `args` to `["--no-update"]` (the entry supplies `--results=verified` and `--fail`; repeating `--results` errors). Landed this way. Do not edit anything else.
   Verify: `pre-commit run trufflehog --all-files` exits 0 on a clean tree (needs `trufflehog` 3.x on PATH; if missing, say so).
 
 ## Phase 2: supply chain
 
-- [ ] **S-1: Pin all Actions to commit SHAs.** Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
+- [ ] **S-1: Pin all Actions to commit SHAs.** (PR #37 open). Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
   For each `uses: owner/repo@tag`, resolve the SHA with
   `gh api repos/OWNER/REPO/commits/TAG --jq .sha` and write `uses: owner/repo@<sha> # TAG`.
   Replace `trufflehog@main` (removed by R-6 at root) with `@v3.95.2`'s SHA. Dependabot already updates Actions.
   Needs: R-6. Verify: `grep -rn "uses:" --include=*.yml . | grep -vE "@[0-9a-f]{40}"` returns nothing.
-- [ ] **S-2: Pin Black, Ruff, isort in Python CI.** Haiku. XS. Files: `python-template/.github/workflows/ci.yml`.
+- [ ] **S-2: Pin Black, Ruff, isort in Python CI.** (PR #34 open). Haiku. XS. Files: `python-template/.github/workflows/ci.yml`.
   Change `pip install black ruff isort` to `pip install black==25.1.0 ruff==0.11.9 isort==6.0.1`
   (match `python-template/.pre-commit-config.yaml` revs; if those change, change both). Also pin in `pyproject.toml` `dev` extras
   with `==`. Verify: `grep -n "pip install" python-template/.github/workflows/ci.yml` shows only pinned lint tools.
-- [ ] **S-3: Least-privilege token.** Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
+- [ ] **S-3: Least-privilege token.** (PR #35 open). Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
   workflows. Remaining: confirm all five template `ci.yml` and the root `ci.yml` carry the same block (root and any template
   missing it get it); do not add anything broader. Verify: `grep -L "permissions:" .github/workflows/*.yml */.github/workflows/ci.yml`
   prints nothing.
 
 ## Phase 3: consistency and tests
 
-- [ ] **C-1: Template conformance check.** Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
+- [ ] **C-1: Template conformance check.** (PR #32 open). Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
   Python stdlib plus PyYAML only. Assert, for every `*-template/` (five, including `iac-template`): `.gitleaks.toml` byte-identical across templates;
   `.pre-commit-config.yaml` contains gitleaks, trufflehog, detect-secrets, no-commit-to-branch with identical `rev`s;
   `ci.yml` has a job named `Secret Scan` using the same gitleaks and trufflehog steps; `dependabot.yml` includes `github-actions` (and `terraform` for `iac-template`);
@@ -109,7 +109,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Exit non-zero listing every violation. Add a root CI step running it. Verify: passes on `main`; temporarily bump one
   `rev` in one template and confirm it fails with a clear message (revert it).
   Known existing violations to fix or allowlist with a comment: Python lacks `check-json`.
-- [ ] **T-1: Test `new-project.sh` with a stubbed `gh`.** Sonnet. M. Needs: R-5. Files: `tests/new-project.bats`, `tests/stub/gh`, root `ci.yml`.
+- [ ] **T-1: Test `new-project.sh` with a stubbed `gh`.** (PR #33 open). Sonnet. M. Needs: R-5. Files: `tests/new-project.bats`, `tests/stub/gh`, root `ci.yml`.
   The stub `gh` is a shell script first on `PATH` that logs its arguments to a file; for `repo clone` it runs
   `git init -b main` in the target directory and sets `origin` to a local bare repo created in the test.
   Cases: each of four languages produces expected files and no leftover `PROJECT_NAME`; `--public` passes `--public`;
@@ -129,16 +129,20 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 4b: drift found after the review (new on `main`)
 
-- [ ] **P-1: Decide pre-push-validation versus local-ci.** Human decision, then Sonnet. S.
-  `da63c71` added `pre-push-validation.sh` (about 106 lines) to the root and each of five templates, offered by an interactive
-  `read -p` in `new-project.sh`. local-ci supersedes it and both own `.git/hooks/pre-push`. Options: (a) keep it and drop the
-  local-ci pre-push hook; (b) replace it with a local-ci-style check; (c) remove it. Known bug whichever is chosen:
-  `new-project.sh` runs `bash pre-push-validation.sh --install-hook`, but the script reads `--install-hook` from `$2` (it
-  expects `--dry-run`/`--install-hook` in positions 1 and 2), so the install branch never runs and the checks run instead.
-  Also `read -p` hangs non-interactive runs; guard with `[ -t 0 ]`. Six copies of one script violate the universality rule's
-  spirit; C-1 should assert they are byte-identical. Verify: after the fix, `bash pre-push-validation.sh --install-hook`
-  in a scratch repo creates `.git/hooks/pre-push`.
-- [ ] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** Sonnet. S. Decision made by owner: use the
+- [ ] **P-1: Fix and keep `pre-push-validation.sh` (owner confirms).** Sonnet. S. Files: `pre-push-validation.sh` (root) and the
+  identical copy in each of the five templates; `new-project.sh` (the `read -p` block near the end). Recommendation: keep it, because
+  generated repos do not have the owner's local-ci skill, so this is the only shippable pre-push gate. Confirmed defects:
+  (1) `new-project.sh` runs `bash pre-push-validation.sh --install-hook`, but the script takes `--dry-run` from `$1` and `--install-hook` from `$2`,
+  so the install branch never runs and the checks run instead: parse each flag from any position (`for a in "$@"`).
+  (2) `install_hook` overwrites any existing `.git/hooks/pre-push` (`cat >`), destroying a pre-commit-framework or local-ci hook: if a non-ours
+  hook exists, move it to `pre-push.prev` and have ours run it first, and refuse to run twice (marker line).
+  (3) `detect_tech_stack` is dead except in `--dry-run`, and `[[ -f "$REPO_ROOT/*.csproj" ]]` never matches (quoted glob): delete the function
+  and replace `--dry-run` with a one-line listing of the checks that apply.
+  (4) `read -p` in `new-project.sh` hangs non-interactive runs: guard with `[ -t 0 ]`.
+  Bash 3.2 compatible (no mapfile, readarray, associative arrays; the owner runs macOS /bin/bash 3.2). Keep it byte-identical across the six copies (C-1 asserts this).
+  Verify: in a scratch repo `bash pre-push-validation.sh --install-hook` creates `.git/hooks/pre-push`; with a pre-existing hook the old hook still
+  runs first; `bash pre-push-validation.sh --dry-run` prints without running checks; `bash -n` and `shellcheck` clean; run under `/bin/bash`.
+- [ ] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** (PR #31 open). Sonnet. S. Decision made by owner: use the
   text at https://github.com/incendiary/Chorus/blob/main/LICENSE (PolyForm Noncommercial 1.0.0, unmodified except the
   `Required Notice:` line). Replaces the Prosperity Public License from `0e3c8af`.
   Files: `LICENSE` in `python-template`, `csharp-template`, `cpp-template`, `node-spa-template`, `iac-template` (iac has none today);
@@ -160,6 +164,13 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Verify: `diff <(sed 1,3d python-template/LICENSE) <(sed 1,3d csharp-template/LICENSE)` empty for all five; `grep -ril prosperity .`
   returns nothing; `grep -rn "MIT" python-template/pyproject.toml` returns nothing; C-1 asserts the five LICENSE files match.
 
+- [ ] **D-3: Fix the template CLAUDE.md audit prompts.** Sonnet. S. Files: `CLAUDE.md` in each of the five templates. Group into one PR.
+  Found in `python-template/CLAUDE.md`, check the other four for the same: Step 3 says `pip install black ruff isort pre-commit detect-secrets`
+  (unpinned; use the versions in that template's `.pre-commit-config.yaml` and `pyproject.toml`); Step 5 shows a branch-protection call with
+  `contexts: ["ci"]` and one required review, which disagrees with `new-project.sh` (language-specific contexts, no required reviews, strict true):
+  replace it with a pointer to what `new-project.sh` already configures, or copy the exact contexts for that language. Keep each file under 150 lines.
+  Verify: `grep -n "pip install" */CLAUDE.md` shows no unpinned tool; every `contexts` value equals `REQUIRED_CHECKS` for that language in `new-project.sh`.
+
 ## Phase 5: documentation and release
 
 - [ ] **D-1: Sync README.** Haiku. XS. Do last in each batch. Files: `README.md`.
@@ -171,3 +182,28 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 Reusable cross-repo workflows (would couple generated projects to this repo; C-1 achieves consistency instead).
 Further languages beyond Terraform until C-1 and T-2 are green.
+
+## Delivery map
+
+One PR per item. Grouped only where files overlap or the change is one logical sweep (D-3 across five templates; S-2 and S-3 were
+separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `main` first (branch protection requires up to date); the
+`ci.yml` PRs most likely to conflict are #32, #33, #34, #35, #36 and #37.
+
+| Item | PR | State |
+|---|---|---|
+| R-1, R-2, R-3, R-4, R-5, R-6, R-8 | #29, #26, #24, #30, #23, #28, #27 | Merged |
+| P-2 | #31 | Open |
+| C-1 | #32 | Open |
+| T-1 | #33 | Open |
+| S-2 | #34 | Open |
+| S-3 | #35 | Open |
+| R-7 | #36 | Open |
+| S-1 | #37 | Open |
+| T-2, P-1, D-3, D-1, D-2 | none yet | Not started |
+
+## Outside this repo (ci-local skill)
+
+- The local-ci hooks print "0 steps executed" at commit time inside git worktrees, and the pre-push installer fails with
+  `mkdir: .git: Not a directory` there (`.git` is a file in a worktree). Pushes still succeed. Fix in the skill, not here.
+- The skill was renamed from `local-ci` to `ci-local`; hooks installed earlier pointed at the old path and blocked every push until reinstalled
+  (`bash ~/.claude/skills/ci-local/local-ci.sh --install-hook pre-push`). The hook should resolve the script path at run time, not bake it in.
