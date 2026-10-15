@@ -82,7 +82,7 @@ Status key: ⬜ Todo · 🔄 In Progress · ✅ Done
 
 ## License
 
-This project is licensed under the [Prosperity Public License 4.0.0](LICENSE). See the LICENSE file for details.
+This project is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use needs a paid licence (see LICENSE).
 
 ---
 
