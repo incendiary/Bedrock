@@ -33,10 +33,6 @@ HOOK_ALLOWLIST = {
     # Real gap, tracked here so the gate lands; remove when iac-template gains check-json.
     ("iac", "check-json"),
 }
-# Real bug, reported as a warning (not failing) until fixed: new-project.sh requires
-# lowercase node-spa check names that no job in node-spa-template/ci.yml has, so branch
-# protection would wait forever. Delete this set when new-project.sh is corrected.
-KNOWN_CHECK_MISMATCH = {("node-spa", "secret-scan"), ("node-spa", "lint"), ("node-spa", "build")}
 PRE_PUSH = [ROOT / "pre-push-validation.sh"] + [
     ROOT / d / "pre-push-validation.sh" for d in TEMPLATES.values() if d != "iac-template"
 ]
@@ -134,9 +130,6 @@ for m in re.finditer(r"^\s*([\w-]+)\)\s+REQUIRED_CHECKS='(\[.*?\])'", script, re
         continue
     for c in checks:
         if c not in jobs_by_lang[lang]:
-            if (lang, c) in KNOWN_CHECK_MISMATCH:
-                print(f"WARNING (known): new-project.sh {lang} required check '{c}' matches no job name")
-                continue
             fail(f"new-project.sh: {lang} required check '{c}' is not a job name in "
                  f"{TEMPLATES[lang]}/ci.yml (jobs: {sorted(n for n in jobs_by_lang[lang] if n)})")
 

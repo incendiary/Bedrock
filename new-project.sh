@@ -96,7 +96,7 @@ case "$TEMPLATE_LANG" in
     python)   REQUIRED_CHECKS='["Secret Scan","Lint","Test"]' ;;
     csharp)   REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
     cpp)      REQUIRED_CHECKS='["Secret Scan","Build & Test"]' ;;
-    node-spa) REQUIRED_CHECKS='["secret-scan","lint","build"]' ;;
+    node-spa) REQUIRED_CHECKS='["Secret Scan","Lint","Build"]' ;;
     iac)      REQUIRED_CHECKS='["Secret Scan","Validate"]' ;;
 esac
 
