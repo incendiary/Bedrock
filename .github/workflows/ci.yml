@@ -53,6 +53,11 @@ jobs:
           pip install detect-secrets==1.5.0
           git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
 
+      - name: Test new-project.sh (bats, stubbed gh)
+        run: |
+          npm install --no-save bats@1.11.0
+          npx bats tests/
+
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest

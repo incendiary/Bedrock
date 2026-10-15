@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Stub gh for tests/new-project.bats: logs args (and stdin for `api`) to $GH_STUB_LOG.
+echo "$*" >> "$GH_STUB_LOG"
+case "$1 $2" in
+    "repo clone")
+        mkdir -p "$4"
+        git -C "$4" init -q -b main
+        git -C "$4" remote add origin "$GH_STUB_ORIGIN"
+        ;;
+    api*)
+        cat >> "$GH_STUB_LOG"
+        ;;
+esac
+exit 0
