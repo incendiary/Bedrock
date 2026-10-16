@@ -96,6 +96,7 @@ After running `new-project.sh`, open the project in Claude Code. The `CLAUDE.md`
 | v1.0.0  | All templates at full parity — tooling, secrets, branch protection |
 | v1.0.1  | Renamed to Bedrock |
 | v1.0.2  | Docs polish |
+| v1.1.0  | IaC (Terraform) template; PolyForm Noncommercial licence; CI builds every template; fixes to the Python, C++ and node-spa templates and the secret-baseline gate |
 
 ---
 
