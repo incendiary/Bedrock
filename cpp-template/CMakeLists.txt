@@ -13,7 +13,7 @@ else()
 endif()
 
 # Main library / executable
-add_executable(${PROJECT_NAME}
+add_executable(PROJECT_NAME
     src/main.cpp
 )
 

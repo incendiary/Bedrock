@@ -73,7 +73,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 - [x] **R-6: Remove the duplicate secret-scan workflow.** (merged, PR #28). Haiku. XS. Files: delete `.github/workflows/secret-scan.yml`.
   First confirm `ci.yml` `secret-scan` job exists (it does). Verify: `grep -c trufflehog .github/workflows/*.yml`;
   branch protection requires `Secret Scan`, which `ci.yml` provides. Note in PR that the check name is unchanged.
-- [ ] **R-7: Lint root workflows and pin lint tools.** (PR #36 open). Haiku. XS. Files: root `.github/workflows/ci.yml`.
+- [x] **R-7: Lint root workflows and pin lint tools.** (merged, PR #36). Haiku. XS. Files: root `.github/workflows/ci.yml`.
   Add `.github/workflows/ci.yml` to the yamllint file list; change `pip install --quiet yamllint` to
   `pip install --quiet yamllint==1.35.1` (check latest with `pip index versions yamllint`; use that exact version).
   Verify: `pip install yamllint==<v> && yamllint -d relaxed .github/workflows/ci.yml` exits 0.
@@ -85,23 +85,23 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 2: supply chain
 
-- [ ] **S-1: Pin all Actions to commit SHAs.** (PR #37 open). Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
+- [x] **S-1: Pin all Actions to commit SHAs.** (merged, PR #37). Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
   For each `uses: owner/repo@tag`, resolve the SHA with
   `gh api repos/OWNER/REPO/commits/TAG --jq .sha` and write `uses: owner/repo@<sha> # TAG`.
   Replace `trufflehog@main` (removed by R-6 at root) with `@v3.95.2`'s SHA. Dependabot already updates Actions.
   Needs: R-6. Verify: `grep -rn "uses:" --include=*.yml . | grep -vE "@[0-9a-f]{40}"` returns nothing.
-- [ ] **S-2: Pin Black, Ruff, isort in Python CI.** (PR #34 open). Haiku. XS. Files: `python-template/.github/workflows/ci.yml`.
+- [x] **S-2: Pin Black, Ruff, isort in Python CI.** (merged, PR #34). Haiku. XS. Files: `python-template/.github/workflows/ci.yml`.
   Change `pip install black ruff isort` to `pip install black==25.1.0 ruff==0.11.9 isort==6.0.1`
   (match `python-template/.pre-commit-config.yaml` revs; if those change, change both). Also pin in `pyproject.toml` `dev` extras
   with `==`. Verify: `grep -n "pip install" python-template/.github/workflows/ci.yml` shows only pinned lint tools.
-- [ ] **S-3: Least-privilege token.** (PR #35 open). Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
+- [x] **S-3: Least-privilege token.** (merged, PR #35). Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
   workflows. Remaining: confirm all five template `ci.yml` and the root `ci.yml` carry the same block (root and any template
   missing it get it); do not add anything broader. Verify: `grep -L "permissions:" .github/workflows/*.yml */.github/workflows/ci.yml`
   prints nothing.
 
 ## Phase 3: consistency and tests
 
-- [ ] **C-1: Template conformance check.** (PR #32 open). Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
+- [x] **C-1: Template conformance check.** (merged, PR #32). Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
   Python stdlib plus PyYAML only. Assert, for every `*-template/` (five, including `iac-template`): `.gitleaks.toml` byte-identical across templates;
   `.pre-commit-config.yaml` contains gitleaks, trufflehog, detect-secrets, no-commit-to-branch with identical `rev`s;
   `ci.yml` has a job named `Secret Scan` using the same gitleaks and trufflehog steps; `dependabot.yml` includes `github-actions` (and `terraform` for `iac-template`);
@@ -109,14 +109,14 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Exit non-zero listing every violation. Add a root CI step running it. Verify: passes on `main`; temporarily bump one
   `rev` in one template and confirm it fails with a clear message (revert it).
   Known existing violations to fix or allowlist with a comment: Python lacks `check-json`.
-- [ ] **T-1: Test `new-project.sh` with a stubbed `gh`.** (PR #33 open). Sonnet. M. Needs: R-5. Files: `tests/new-project.bats`, `tests/stub/gh`, root `ci.yml`.
+- [x] **T-1: Test `new-project.sh` with a stubbed `gh`.** (merged, PR #33). Sonnet. M. Needs: R-5. Files: `tests/new-project.bats`, `tests/stub/gh`, root `ci.yml`.
   The stub `gh` is a shell script first on `PATH` that logs its arguments to a file; for `repo clone` it runs
   `git init -b main` in the target directory and sets `origin` to a local bare repo created in the test.
   Cases: each of four languages produces expected files and no leftover `PROJECT_NAME`; `--public` passes `--public`;
   protection payload contains the right check names; bad name exits 1 before any `gh` call.
   Install bats via `brew`-free route: `git clone --depth 1 --branch v1.11.0 https://github.com/bats-core/bats-core` into `.git/` scratch;
   in CI use `npm i -g bats@1.11.0` or the pinned action SHA. Verify: `bats tests/` green locally.
-- [ ] **T-2: Build every template in CI.** Sonnet. M. Needs: R-1, R-2, R-3, T-1. Files: root `ci.yml`.
+- [ ] **T-2: Build every template in CI.** (PR open; done when merged and green). Sonnet. M. Needs: R-1, R-2, R-3, T-1. Files: root `ci.yml`.
   Matrix job: copy the template to a temp dir, `sed` `PROJECT_NAME`, `git init`, run that template's own lint, test, build
   (Python: pip install, black, ruff, pytest; C#: dotnet format, build, test; C++: cmake, ctest; node: npm ci, lint, build).
   Verify: job green for all four; deliberately break one template locally and confirm the matrix leg fails.
@@ -129,7 +129,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 4b: drift found after the review (new on `main`)
 
-- [ ] **P-1: Fix and keep `pre-push-validation.sh` (owner confirms).** Sonnet. S. Files: `pre-push-validation.sh` (root) and the
+- [x] **P-1: Fix and keep `pre-push-validation.sh` (owner confirms).** (merged, PR #39). Sonnet. S. Files: `pre-push-validation.sh` (root) and the
   identical copy in each of the five templates; `new-project.sh` (the `read -p` block near the end). Recommendation: keep it, because
   generated repos do not have the owner's local-ci skill, so this is the only shippable pre-push gate. Confirmed defects:
   (1) `new-project.sh` runs `bash pre-push-validation.sh --install-hook`, but the script takes `--dry-run` from `$1` and `--install-hook` from `$2`,
@@ -142,7 +142,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Bash 3.2 compatible (no mapfile, readarray, associative arrays; the owner runs macOS /bin/bash 3.2). Keep it byte-identical across the six copies (C-1 asserts this).
   Verify: in a scratch repo `bash pre-push-validation.sh --install-hook` creates `.git/hooks/pre-push`; with a pre-existing hook the old hook still
   runs first; `bash pre-push-validation.sh --dry-run` prints without running checks; `bash -n` and `shellcheck` clean; run under `/bin/bash`.
-- [ ] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** (PR #31 open). Sonnet. S. Decision made by owner: use the
+- [x] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** (merged, PR #31). Sonnet. S. Decision made by owner: use the
   text at https://github.com/incendiary/Chorus/blob/main/LICENSE (PolyForm Noncommercial 1.0.0, unmodified except the
   `Required Notice:` line). Replaces the Prosperity Public License from `0e3c8af`.
   Files: `LICENSE` in `python-template`, `csharp-template`, `cpp-template`, `node-spa-template`, `iac-template` (iac has none today);
@@ -191,15 +191,11 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
 
 | Item | PR | State |
 |---|---|---|
-| R-1, R-2, R-3, R-4, R-5, R-6, R-8 | #29, #26, #24, #30, #23, #28, #27 | Merged |
-| P-2 | #31 | Open |
-| C-1 | #32 | Open |
-| T-1 | #33 | Open |
-| S-2 | #34 | Open |
-| S-3 | #35 | Open |
-| R-7 | #36 | Open |
-| S-1 | #37 | Open |
-| T-2, P-1, D-3, D-1, D-2 | none yet | Not started |
+| R-1 to R-6, R-8 | #29, #26, #24, #30, #23, #28, #27 | Merged |
+| P-2 licence, C-1, T-1, S-2, S-3, R-7, S-1, P-1 | #31, #32, #33, #34, #35, #36, #37, #39 | Merged |
+| Node-spa required check names (found by C-1) | #40 | Merged |
+| T-2 | see PR list | Open |
+| D-3, D-1, D-2 | none yet | Not started |
 
 ## Outside this repo (ci-local skill)
 

@@ -58,6 +58,62 @@ jobs:
           npm install --no-save bats@1.11.0
           npx bats tests/
 
+  templates:
+    name: Template (${{ matrix.lang }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [python, csharp, cpp, node-spa, iac]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # Same substitution new-project.sh performs, then a throwaway git repo
+      - name: Generate project from template
+        run: |
+          mkdir "$RUNNER_TEMP/proj"
+          cp -R "${{ matrix.lang }}-template/." "$RUNNER_TEMP/proj/"
+          cd "$RUNNER_TEMP/proj"
+          grep -rlI "PROJECT_NAME\|REPO_NAME" . | xargs sed -i "s/PROJECT_NAME/demo/g; s/REPO_NAME/demo/g"
+          find . -name "*PROJECT_NAME*" | while read -r f; do mv "$f" "${f//PROJECT_NAME/demo}"; done
+          git init -q -b main
+          git add -A
+          git -c user.email=ci@example.invalid -c user.name=ci commit -q -m init
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: matrix.lang == 'node-spa'
+        with:
+          node-version: lts/*
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        if: matrix.lang == 'csharp'
+        with:
+          dotnet-version: "8.x"
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        if: matrix.lang == 'iac'
+        with:
+          terraform_version: "1.9.5"
+
+      # pre-push-validation.sh skips installs by design, so do them here
+      - name: Install toolchain and dependencies
+        working-directory: ${{ runner.temp }}/proj
+        run: |  # pragma: allowlist secret
+          pip install --quiet pyyaml==6.0.2 detect-secrets==1.5.0
+          case "${{ matrix.lang }}" in
+            python)   pip install --quiet -e ".[dev]" ;;
+            node-spa) npm ci ;;
+            csharp)   dotnet restore ;;
+            cpp)      sudo apt-get update && sudo apt-get install -y cmake ninja-build clang clang-format clang-tidy ;;
+          esac
+
+      # Runs the generated project's own ci.yml steps (read-only)
+      - name: Run the template's CI steps
+        run: |
+          cd "${{ runner.temp }}/proj"
+          bash pre-push-validation.sh
+
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest
