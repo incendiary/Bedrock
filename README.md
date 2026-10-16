@@ -42,6 +42,8 @@ The script creates a private GitHub repo under your account, seeds it from the r
 | `.gitleaks.toml` | Gitleaks config with `.secrets.baseline` allowlist |
 | `.secrets.baseline` | detect-secrets baseline (committed; regenerate after adding code) |
 | `.gitignore` | Comprehensive ignores for the language |
+| `LICENSE` | PolyForm Noncommercial 1.0.0; commercial use needs a paid licence (see the file) |
+| `pre-push-validation.sh` | Runs the steps in your `ci.yml` locally before you push; `bash pre-push-validation.sh --install-hook` installs it (chains any existing pre-push hook) |
 | `README.md` | Project README with roadmap table |
 | `pyproject.toml` | Python: Black, Ruff, isort, detect-secrets config |
 | `.editorconfig` | C#: Microsoft conventions + naming/compiler warnings |
@@ -93,6 +95,7 @@ After running `new-project.sh`, open the project in Claude Code. The `CLAUDE.md`
 | v0.3.0  | node-spa template (Express + Vue 3 + Vite + SQLite) |
 | v1.0.0  | All templates at full parity — tooling, secrets, branch protection |
 | v1.0.1  | Renamed to Bedrock |
+| v1.0.2  | Docs polish |
 
 ---
 
@@ -112,3 +115,13 @@ pre-commit install
 - The Bedrock root `.github/workflows/ci.yml`
 
 If you add a tool in one place, add it everywhere before committing.
+
+The rule is enforced, not just stated:
+
+```bash
+pip install pyyaml
+python scripts/check-conformance.py     # templates agree on hooks, scan jobs, check names, pre-push script
+npm install --no-save bats@1.11.0 && npx bats tests/   # new-project.sh against a stubbed gh
+```
+
+CI runs both, and builds every template as a generated project (the `Template (…)` jobs). Work items are in [ROADMAP.md](ROADMAP.md).

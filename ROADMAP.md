@@ -173,7 +173,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 5: documentation and release
 
-- [ ] **D-1: Sync README.** Haiku. XS. Do last in each batch. Files: `README.md`.
+- [x] **D-1: Sync README.** (PR open). Haiku. XS. Do last in each batch. Files: `README.md`.
   Add v1.0.2 (and later versions) to Releases, add `terraform` to template table and examples once N-1 lands, point Contributing at
   `scripts/check-conformance.py`. Verify: every `git tag` appears in the Releases table.
 - [ ] **D-2: Release v1.1.0.** Human, `github-release-workflow` skill. XS. Needs: Phases 1 to 4 merged.
@@ -195,8 +195,9 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
 | P-2 licence, C-1, T-1, S-2, S-3, R-7, S-1, P-1 | #31, #32, #33, #34, #35, #36, #37, #39 | Merged |
 | Node-spa required check names (found by C-1) | #40 | Merged |
 | T-2 | #41 | Merged |
-| D-3 | open PR | Open |
-| D-1, D-2 | none yet | Not started |
+| D-3 | #42 | Merged |
+| D-1 | open PR | Open |
+| D-2 | none yet | Not started |
 
 ## Outside this repo (ci-local skill)
 
@@ -206,3 +207,5 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
   (`bash ~/.claude/skills/ci-local/local-ci.sh --install-hook pre-push`). The hook should resolve the script path at run time, not bake it in.
 
 Note from D-3: `iac-template/.github/workflows/ci.yml` still runs `pip install checkov` unpinned (the docs now say `checkov==3.3.29`); pin it in the next CI sweep.
+
+Gap found during D-1: `scripts/check-conformance.py` does not compare the five `LICENSE` files, although P-2 says it should. Add that assertion when next touching C-1.
