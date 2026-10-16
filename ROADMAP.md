@@ -39,12 +39,12 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 1: defects (ship first)
 
-- [x] **R-1: Fix Python build backend.** (merged, PR #29). Haiku. XS. Files: `python-template/pyproject.toml`.
+- [x] **R-1: Fix Python build backend.** (merged, commit cc4bc85). Haiku. XS. Files: `python-template/pyproject.toml`.
   Change line 3 `build-backend = "setuptools.backends.legacy:build"` to `build-backend = "setuptools.build_meta"`.
   Verify: in a scratch dir `python -m venv .v && .v/bin/pip install -e ".[dev]"` from a copy of the template
   (replace `PROJECT_NAME` with `demo` first; the package dir is `src`, so add
   `[tool.setuptools] packages = ["src"]` only if the install errors on discovery) exits 0, then `.v/bin/pytest` passes.
-- [x] **R-2: Make the secret-baseline gate fail on new secrets.** (merged, PR #26). Sonnet. S.
+- [x] **R-2: Make the secret-baseline gate fail on new secrets.** (merged, commit cc02e5a). Sonnet. S.
   Files: root `.github/workflows/ci.yml`; `python|csharp|cpp|iac-template/.github/workflows/ci.yml`;
   `python-template/tests/test_secrets.py`.
   Problem: `detect-secrets scan --baseline F` rewrites F and exits 0. Replace each CI step body with
@@ -55,29 +55,29 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   add `tests/test_main.py` asserting `main()` runs (pytest exits 5 with no tests, so one test must remain).
   Verify (negative test, in a scratch copy): add a file containing the AWS documentation example access key (look it up in the AWS docs; do not paste it into any tracked file), `git add` it,
   run the command; expect non-zero. Remove it; expect zero. Paste both exit codes.
-- [x] **R-3: Commit a lockfile for node-spa.** (merged, PR #24). Sonnet. S. Files: `node-spa-template/package-lock.json` (new).
+- [x] **R-3: Commit a lockfile for node-spa.** (merged, commit 15eef55). Sonnet. S. Files: `node-spa-template/package-lock.json` (new).
   In a scratch copy run `npm install --package-lock-only` at `node-spa-template/` (workspaces: one root lockfile).
   Copy the lockfile back. Verify: `npm ci && npm run lint && npm run build` succeeds in a clean copy;
   `npm audit --omit=dev` output pasted. Do not edit `package.json` versions here.
-- [x] **R-4: Replace deprecated multer.** (merged, PR #30). Sonnet. XS. Needs: R-3. Files: `node-spa-template/server/package.json`, lockfile.
+- [x] **R-4: Replace deprecated multer.** (merged, commit c4f889f). Sonnet. XS. Needs: R-3. Files: `node-spa-template/server/package.json`, lockfile.
   Owner question first: if SQLite and uploads are not wanted by default, delete `multer` and `better-sqlite3`
   instead (ponytail finding 2). Default if no answer: bump to `multer` 2.x only; keep `better-sqlite3`.
   Verify: `npm ci && npm audit --omit=dev` shows no multer advisories; `node server/src/index.js` starts and
   `curl localhost:3000/api/health` returns `{"status":"ok",...}`.
-- [x] **R-5: Harden `new-project.sh`.** (merged, PR #23). Sonnet. S. Files: `new-project.sh` only.
+- [x] **R-5: Harden `new-project.sh`.** (merged, commit 96465b4). Sonnet. S. Files: `new-project.sh` only.
   (a) rename `LANG` to `TEMPLATE_LANG` everywhere; (b) fix the usage heredoc (lines 17-21: the `cpp` example
   swallows the next lines in one string; make each example its own `echo`); (c) `GITHUB_USER="${BEDROCK_GITHUB_USER:-incendiary}"`;
   (d) reject names not matching `^[A-Za-z0-9._-]+$` before any `gh` call; (e) set `-- ` and quote `$VISIBILITY` correctly.
   Verify: `bash -n new-project.sh && shellcheck new-project.sh`; `./new-project.sh python 'bad/name'` exits 1
   with a message and makes no network call (run with `PATH` stripped of `gh` to prove it); `./new-project.sh` prints clean usage.
-- [x] **R-6: Remove the duplicate secret-scan workflow.** (merged, PR #28). Haiku. XS. Files: delete `.github/workflows/secret-scan.yml`.
+- [x] **R-6: Remove the duplicate secret-scan workflow.** (merged, commit 3af34c7). Haiku. XS. Files: delete `.github/workflows/secret-scan.yml`.
   First confirm `ci.yml` `secret-scan` job exists (it does). Verify: `grep -c trufflehog .github/workflows/*.yml`;
   branch protection requires `Secret Scan`, which `ci.yml` provides. Note in PR that the check name is unchanged.
-- [x] **R-7: Lint root workflows and pin lint tools.** (merged, PR #36). Haiku. XS. Files: root `.github/workflows/ci.yml`.
+- [x] **R-7: Lint root workflows and pin lint tools.** (merged, commit 716cc98). Haiku. XS. Files: root `.github/workflows/ci.yml`.
   Add `.github/workflows/ci.yml` to the yamllint file list; change `pip install --quiet yamllint` to
   `pip install --quiet yamllint==1.35.1` (check latest with `pip index versions yamllint`; use that exact version).
   Verify: `pip install yamllint==<v> && yamllint -d relaxed .github/workflows/ci.yml` exits 0.
-- [x] **R-8: Fix the TruffleHog pre-commit hook args.** (merged, PR #27). Haiku. XS. Files: `.pre-commit-config.yaml` and the five
+- [x] **R-8: Fix the TruffleHog pre-commit hook args.** (merged, commit 3f37398). Haiku. XS. Files: `.pre-commit-config.yaml` and the five
   `*-template/.pre-commit-config.yaml` (python, csharp, cpp, node-spa, iac). The upstream hook `entry` already is `trufflehog git file://. --since-commit HEAD ...`,
   so our `args: ["git", "file://.", ...]` duplicates the subcommand and the hook dies with "unexpected git" on every commit.
   Change `args` to `["--no-update"]` (the entry supplies `--results=verified` and `--fail`; repeating `--results` errors). Landed this way. Do not edit anything else.
@@ -85,23 +85,23 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 2: supply chain
 
-- [x] **S-1: Pin all Actions to commit SHAs.** (merged, PR #37). Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
+- [x] **S-1: Pin all Actions to commit SHAs.** (merged, commit da0e98c). Sonnet. M. Files: every `ci.yml` (root plus the five templates, including `iac-template`; `hashicorp/setup-terraform` too).
   For each `uses: owner/repo@tag`, resolve the SHA with
   `gh api repos/OWNER/REPO/commits/TAG --jq .sha` and write `uses: owner/repo@<sha> # TAG`.
   Replace `trufflehog@main` (removed by R-6 at root) with `@v3.95.2`'s SHA. Dependabot already updates Actions.
   Needs: R-6. Verify: `grep -rn "uses:" --include=*.yml . | grep -vE "@[0-9a-f]{40}"` returns nothing.
-- [x] **S-2: Pin Black, Ruff, isort in Python CI.** (merged, PR #34). Haiku. XS. Files: `python-template/.github/workflows/ci.yml`.
+- [x] **S-2: Pin Black, Ruff, isort in Python CI.** (merged, commit 5f4e13e). Haiku. XS. Files: `python-template/.github/workflows/ci.yml`.
   Change `pip install black ruff isort` to `pip install black==25.1.0 ruff==0.11.9 isort==6.0.1`
   (match `python-template/.pre-commit-config.yaml` revs; if those change, change both). Also pin in `pyproject.toml` `dev` extras
   with `==`. Verify: `grep -n "pip install" python-template/.github/workflows/ci.yml` shows only pinned lint tools.
-- [x] **S-3: Least-privilege token.** (merged, PR #35). Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
+- [x] **S-3: Least-privilege token.** (merged, commit 68fd544). Haiku. XS. PR 20 added `permissions: contents: read` and `pull-requests: read` to the template
   workflows. Remaining: confirm all five template `ci.yml` and the root `ci.yml` carry the same block (root and any template
   missing it get it); do not add anything broader. Verify: `grep -L "permissions:" .github/workflows/*.yml */.github/workflows/ci.yml`
   prints nothing.
 
 ## Phase 3: consistency and tests
 
-- [x] **C-1: Template conformance check.** (merged, PR #32). Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
+- [x] **C-1: Template conformance check.** (merged, commit c499ea4). Sonnet. M. Files: `scripts/check-conformance.py` (new), root `ci.yml`, README Contributing.
   Python stdlib plus PyYAML only. Assert, for every `*-template/` (five, including `iac-template`): `.gitleaks.toml` byte-identical across templates;
   `.pre-commit-config.yaml` contains gitleaks, trufflehog, detect-secrets, no-commit-to-branch with identical `rev`s;
   `ci.yml` has a job named `Secret Scan` using the same gitleaks and trufflehog steps; `dependabot.yml` includes `github-actions` (and `terraform` for `iac-template`);
@@ -109,7 +109,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Exit non-zero listing every violation. Add a root CI step running it. Verify: passes on `main`; temporarily bump one
   `rev` in one template and confirm it fails with a clear message (revert it).
   Known existing violations to fix or allowlist with a comment: Python lacks `check-json`.
-- [x] **T-1: Test `new-project.sh` with a stubbed `gh`.** (merged, PR #33). Sonnet. M. Needs: R-5. Files: `tests/new-project.bats`, `tests/stub/gh`, root `ci.yml`.
+- [x] **T-1: Test `new-project.sh` with a stubbed `gh`.** (merged, commit 56a60a4). Sonnet. M. Needs: R-5. Files: `tests/new-project.bats`, `tests/stub/gh`, root `ci.yml`.
   The stub `gh` is a shell script first on `PATH` that logs its arguments to a file; for `repo clone` it runs
   `git init -b main` in the target directory and sets `origin` to a local bare repo created in the test.
   Cases: each of four languages produces expected files and no leftover `PROJECT_NAME`; `--public` passes `--public`;
@@ -129,7 +129,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
 ## Phase 4b: drift found after the review (new on `main`)
 
-- [x] **P-1: Fix and keep `pre-push-validation.sh` (owner confirms).** (merged, PR #39). Sonnet. S. Files: `pre-push-validation.sh` (root) and the
+- [x] **P-1: Fix and keep `pre-push-validation.sh` (owner confirms).** (merged, commit e44629d). Sonnet. S. Files: `pre-push-validation.sh` (root) and the
   identical copy in each of the five templates; `new-project.sh` (the `read -p` block near the end). Recommendation: keep it, because
   generated repos do not have the owner's local-ci skill, so this is the only shippable pre-push gate. Confirmed defects:
   (1) `new-project.sh` runs `bash pre-push-validation.sh --install-hook`, but the script takes `--dry-run` from `$1` and `--install-hook` from `$2`,
@@ -142,7 +142,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Bash 3.2 compatible (no mapfile, readarray, associative arrays; the owner runs macOS /bin/bash 3.2). Keep it byte-identical across the six copies (C-1 asserts this).
   Verify: in a scratch repo `bash pre-push-validation.sh --install-hook` creates `.git/hooks/pre-push`; with a pre-existing hook the old hook still
   runs first; `bash pre-push-validation.sh --dry-run` prints without running checks; `bash -n` and `shellcheck` clean; run under `/bin/bash`.
-- [x] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** (merged, PR #31). Sonnet. S. Decision made by owner: use the
+- [x] **P-2: Default every template to PolyForm Noncommercial 1.0.0.** (merged, commit 393d4a6). Sonnet. S. Decision made by owner: use the
   text at https://github.com/incendiary/Chorus/blob/main/LICENSE (PolyForm Noncommercial 1.0.0, unmodified except the
   `Required Notice:` line). Replaces the Prosperity Public License from `0e3c8af`.
   Files: `LICENSE` in `python-template`, `csharp-template`, `cpp-template`, `node-spa-template`, `iac-template` (iac has none today);
@@ -186,17 +186,17 @@ Further languages beyond Terraform until C-1 and T-2 are green.
 ## Delivery map
 
 One PR per item. Grouped only where files overlap or the change is one logical sweep (D-3 across five templates; S-2 and S-3 were
-separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `main` first (branch protection requires up to date); the
-`ci.yml` PRs most likely to conflict are #32, #33, #34, #35, #36 and #37.
+separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `main` first (branch protection requires up to date).
 
-| Item | PR | State |
+
+| Item | Merge commit | State |
 |---|---|---|
-| R-1 to R-6, R-8 | #29, #26, #24, #30, #23, #28, #27 | Merged |
-| P-2 licence, C-1, T-1, S-2, S-3, R-7, S-1, P-1 | #31, #32, #33, #34, #35, #36, #37, #39 | Merged |
-| Node-spa required check names (found by C-1) | #40 | Merged |
-| T-2 | #41 | Merged |
-| D-3 | #42 | Merged |
-| D-1 | #43 | Merged |
+| R-1 to R-6, R-8 | cc4bc85, cc02e5a, 15eef55, c4f889f, 96465b4, 3af34c7, 3f37398 | Merged |
+| P-2 licence, C-1, T-1, S-2, S-3, R-7, S-1, P-1 | 393d4a6, c499ea4, 56a60a4, 5f4e13e, 68fd544, 716cc98, da0e98c, e44629d | Merged |
+| Node-spa required check names (found by C-1) | 8912717 | Merged |
+| T-2 | d22ea24 | Merged |
+| D-3 | 9473beb | Merged |
+| D-1 | 08853ee | Merged |
 | D-2 | v1.1.0 release | Done |
 
 ## Outside this repo (ci-local skill)
