@@ -160,7 +160,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 
   Drop the email address (public file) and keep the literal `PROJECT_NAME` so `new-project.sh` substitutes it. The header is
   plain text outside the PolyForm terms; do not edit the licence body. No separate commercial file (owner decision) Do not edit any other licence wording.
-  Decide separately whether Bedrock's own root has a `LICENSE` (it has none today); report it, do not add one.
+  Bedrock's own root `LICENSE` was added after the owner confirmed (same PolyForm Noncommercial text) -- originally: do not add one.
   Verify: `diff <(sed 1,3d python-template/LICENSE) <(sed 1,3d csharp-template/LICENSE)` empty for all five; `grep -ril prosperity .`
   returns nothing; `grep -rn "MIT" python-template/pyproject.toml` returns nothing; C-1 asserts the five LICENSE files match.
 
