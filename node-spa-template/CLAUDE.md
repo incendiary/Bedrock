@@ -55,15 +55,7 @@ pre-commit run --all-files
 ### Step 4 — Documentation & Branch Protection
 - `README.md` has: description, prerequisites, setup steps, usage, roadmap
 - Sensitive engagement context removed from all docs and comments
-- Branch protection enabled on `main`:
-```bash
-gh api repos/OWNER/REPO/branches/main/protection \
-  --method PUT \
-  --field required_status_checks='{"strict":true,"contexts":["lint","secret-scan"]}' \
-  --field enforce_admins=true \
-  --field required_pull_request_reviews='{"required_approving_review_count":0}' \
-  --field restrictions=null
-```
+- Branch protection on `main` is configured by `new-project.sh` (strict; required checks: Secret Scan, Lint, Build)
 
 ### Step 5 — Versioning
 Tag releases using semver. Suggested milestones:

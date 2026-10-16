@@ -164,7 +164,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
   Verify: `diff <(sed 1,3d python-template/LICENSE) <(sed 1,3d csharp-template/LICENSE)` empty for all five; `grep -ril prosperity .`
   returns nothing; `grep -rn "MIT" python-template/pyproject.toml` returns nothing; C-1 asserts the five LICENSE files match.
 
-- [ ] **D-3: Fix the template CLAUDE.md audit prompts.** Sonnet. S. Files: `CLAUDE.md` in each of the five templates. Group into one PR.
+- [x] **D-3: Fix the template CLAUDE.md audit prompts.** (PR open; iac CI still installs checkov unpinned, see note). Sonnet. S. Files: `CLAUDE.md` in each of the five templates. Group into one PR.
   Found in `python-template/CLAUDE.md`, check the other four for the same: Step 3 says `pip install black ruff isort pre-commit detect-secrets`
   (unpinned; use the versions in that template's `.pre-commit-config.yaml` and `pyproject.toml`); Step 5 shows a branch-protection call with
   `contexts: ["ci"]` and one required review, which disagrees with `new-project.sh` (language-specific contexts, no required reviews, strict true):
@@ -194,8 +194,9 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
 | R-1 to R-6, R-8 | #29, #26, #24, #30, #23, #28, #27 | Merged |
 | P-2 licence, C-1, T-1, S-2, S-3, R-7, S-1, P-1 | #31, #32, #33, #34, #35, #36, #37, #39 | Merged |
 | Node-spa required check names (found by C-1) | #40 | Merged |
-| T-2 | see PR list | Open |
-| D-3, D-1, D-2 | none yet | Not started |
+| T-2 | #41 | Merged |
+| D-3 | open PR | Open |
+| D-1, D-2 | none yet | Not started |
 
 ## Outside this repo (ci-local skill)
 
@@ -203,3 +204,5 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
   `mkdir: .git: Not a directory` there (`.git` is a file in a worktree). Pushes still succeed. Fix in the skill, not here.
 - The skill was renamed from `local-ci` to `ci-local`; hooks installed earlier pointed at the old path and blocked every push until reinstalled
   (`bash ~/.claude/skills/ci-local/local-ci.sh --install-hook pre-push`). The hook should resolve the script path at run time, not bake it in.
+
+Note from D-3: `iac-template/.github/workflows/ci.yml` still runs `pip install checkov` unpinned (the docs now say `checkov==3.3.29`); pin it in the next CI sweep.

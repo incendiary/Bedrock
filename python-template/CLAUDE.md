@@ -59,8 +59,7 @@ Set up if not already present:
 
 ```bash
 # Install tooling
-python -m pip install --upgrade pip
-pip install black ruff isort pre-commit detect-secrets
+pip install -e ".[dev]"   # tool versions are pinned in pyproject.toml
 
 # Initialise pre-commit
 pre-commit install
@@ -99,13 +98,8 @@ Add a GitHub issue and roadmap entry for any missing tests.
 # Make repo public
 gh repo edit --visibility public
 
-# Enable branch protection on main
-gh api repos/incendiary/REPO_NAME/branches/main/protection \
-  --method PUT \
-  --field required_status_checks='{"strict":true,"contexts":["ci"]}' \
-  --field enforce_admins=true \
-  --field required_pull_request_reviews='{"required_approving_review_count":1}' \
-  --field restrictions=null
+# Branch protection on main is configured by new-project.sh (strict; required checks: Secret Scan, Lint, Test).
+# To re-apply, reuse the `gh api .../branches/main/protection` call in new-project.sh.
 ```
 
 ---

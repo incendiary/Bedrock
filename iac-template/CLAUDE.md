@@ -50,7 +50,7 @@ destroying `.git` and reinitialising. **Do not proceed until history is clean.**
 ### Step 3 — Tooling
 
 ```bash
-pip install pre-commit detect-secrets checkov
+pip install pre-commit==4.7.0 detect-secrets==1.5.0 checkov==3.3.29
 pre-commit install
 pre-commit run --all-files
 detect-secrets scan > .secrets.baseline

@@ -75,7 +75,7 @@ clang-format --dry-run --Werror src/**/*.cpp src/**/*.h
 clang-tidy src/**/*.cpp -- -std=c++17
 
 # Install pre-commit and detect-secrets
-pip install pre-commit detect-secrets
+pip install pre-commit==4.7.0 detect-secrets==1.5.0
 pre-commit install
 pre-commit run --all-files
 
@@ -114,13 +114,8 @@ Add a GitHub issue and roadmap entry for any missing tests (Google Test / Catch2
 # Make repo public
 gh repo edit --visibility public
 
-# Enable branch protection on main
-gh api repos/incendiary/REPO_NAME/branches/main/protection \
-  --method PUT \
-  --field required_status_checks='{"strict":true,"contexts":["ci"]}' \
-  --field enforce_admins=true \
-  --field required_pull_request_reviews='{"required_approving_review_count":1}' \
-  --field restrictions=null
+# Branch protection on main is configured by new-project.sh (strict; required checks: Secret Scan, Build & Test).
+# To re-apply, reuse the `gh api .../branches/main/protection` call in new-project.sh.
 ```
 
 ---
