@@ -34,7 +34,7 @@ HOOK_ALLOWLIST = {
     ("iac", "check-json"),
 }
 PRE_PUSH = [ROOT / "pre-push-validation.sh"] + [
-    ROOT / d / "pre-push-validation.sh" for d in TEMPLATES.values() if d != "iac-template"
+    ROOT / d / "pre-push-validation.sh" for d in TEMPLATES.values()
 ]
 
 violations = []
@@ -75,6 +75,14 @@ def check_identical_files(label, paths):
 check_identical_files(".gitleaks.toml", [ROOT / d / ".gitleaks.toml" for d in TEMPLATES.values()])
 # iac-template ships no pre-push-validation.sh: five copies are root plus four templates.
 check_identical_files("pre-push-validation.sh", PRE_PUSH)
+
+# LICENSE: the five templates are byte-identical, and the root is the same text with the project name filled in
+check_identical_files("LICENSE", [ROOT / d / "LICENSE" for d in TEMPLATES.values()])
+root_licence, template_licence = ROOT / "LICENSE", ROOT / "python-template" / "LICENSE"
+if not root_licence.exists():
+    fail("LICENSE: root LICENSE missing")
+elif template_licence.exists() and root_licence.read_text() != template_licence.read_text().replace("PROJECT_NAME", "Bedrock"):
+    fail("LICENSE: root LICENSE differs from the template text with PROJECT_NAME replaced by Bedrock")
 
 # pre-commit
 revs = {k: {} for k in PRE_COMMIT_REPOS}

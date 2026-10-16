@@ -176,7 +176,7 @@ Effort: XS under 15 min, S under 1 h, M half a day, L a day.
 - [x] **D-1: Sync README.** (PR open). Haiku. XS. Do last in each batch. Files: `README.md`.
   Add v1.0.2 (and later versions) to Releases, add `terraform` to template table and examples once N-1 lands, point Contributing at
   `scripts/check-conformance.py`. Verify: every `git tag` appears in the Releases table.
-- [ ] **D-2: Release v1.1.0.** Human, `github-release-workflow` skill. XS. Needs: Phases 1 to 4 merged.
+- [x] **D-2: Release v1.1.0.** Released 2026-10-16 as https://github.com/incendiary/Bedrock/releases/tag/v1.1.0 (hand-cut with `gh release create`; release-please not used). Human, `github-release-workflow` skill. XS. Needs: Phases 1 to 4 merged.
 
 ## Out of scope for now
 
@@ -196,8 +196,8 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
 | Node-spa required check names (found by C-1) | #40 | Merged |
 | T-2 | #41 | Merged |
 | D-3 | #42 | Merged |
-| D-1 | open PR | Open |
-| D-2 | none yet | Not started |
+| D-1 | #43 | Merged |
+| D-2 | v1.1.0 release | Done |
 
 ## Outside this repo (ci-local skill)
 
@@ -208,4 +208,4 @@ separate PRs). Merge `ci.yml` PRs one at a time and update each branch from `mai
 
 Note from D-3: `iac-template/.github/workflows/ci.yml` still runs `pip install checkov` unpinned (the docs now say `checkov==3.3.29`); pin it in the next CI sweep.
 
-Gap found during D-1: `scripts/check-conformance.py` does not compare the five `LICENSE` files, although P-2 says it should. Add that assertion when next touching C-1.
+Closed after D-1: `scripts/check-conformance.py` now compares the five `LICENSE` files (and the root one), and includes `iac-template` in the pre-push-validation check.
